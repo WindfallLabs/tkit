@@ -10,10 +10,11 @@ logging.basicConfig(level=logging.DEBUG,
 
 class Statusbar(tk.Frame):
     """ Places status bar and label in frame """
-    def __init__(self, root):
+    def __init__(self, root, disable_button=None):
         self.root = root
         self.status_thread = ThreadedClient("Statusbar", self.start_bar)
         self.wait_event = threading.Event()
+        self.root_but = disable_button
 
         # Status (label)
         self.labels = ["Ready", "Working...", "Done"]
@@ -28,9 +29,23 @@ class Statusbar(tk.Frame):
                                       text=self.labels[0])
         self.status_label.pack(side='left', anchor='sw',
                                padx=2, pady=5)
-        
+                
         self.progressbar = ttk.Progressbar(self.bar, orient='horizontal',
                                            length=300, mode='indeterminate')
+
+        self.reset_but = tk.Button(self.bar, text="Reset", command=self.reset)
+        #self.reset_but.pack(side='right')
+        self.reset_but.config(relief='flat',
+                              overrelief="groove",
+                              height=0)
+
+    def reset(self):
+        self.root_but.config(state="enabled")
+        self.progressbar.pack_forget()
+        self.update_bar()
+        self.status_thread = ThreadedClient("Statusbar", self.start_bar)
+        self.wait_event = threading.Event()
+        self.reset_but.pack_forget()
 
     def update_bar(self):
         """ changes status label and packs/unpacks progress bar """
@@ -42,13 +57,12 @@ class Statusbar(tk.Frame):
             self.progressbar.pack(side='right', expand='y',
                                fill='x', padx=5, pady=2)
         elif self.cur_status == 2:
+            self.reset_but.pack(side='right')
             #self.progressbar.pack_forget() # Issue here
             pass
 
-    def hide(self):
-        self.progressbar.pack_forget()
-
     def start_bar(self):
+        self.root_but.config(state="disabled")
         self.progressbar.start(1)
         self.wait_event.wait()
         logging.debug("Status wait event done")
@@ -99,15 +113,13 @@ class TestApp(tk.Frame):
 
         """ Widgets """
 
-        # Imported StatusBar will be used as so
-        self.statusbar = Statusbar(self)
-
         # OK Button runs Main() and sends parameters (from tk widgets)
         self.Ok_but = ttk.Button(text=" OK ",
                                  command=self.call_main)
         self.Ok_but.pack()
 
-        self.kill_but = ttk.Button(text = " Kill ", command = self.kill).pack()
+        # Imported StatusBar will be used as so
+        self.statusbar = Statusbar(self, self.Ok_but)
 
         """ Bindings """
 
@@ -119,9 +131,6 @@ class TestApp(tk.Frame):
 
 
     """ Window Methods """
-
-    def kill(self, *event):
-        self.statusbar.progressbar.pack_forget()
 
     def close(self, event=None):
         self.root.destroy()
@@ -138,7 +147,6 @@ class TestApp(tk.Frame):
 
     def Main(self, t):
         """ emulates process """
-        self.Ok_but.config(state="disabled")
         logging.debug('Processing...')
         self.statusbar.start()
         sleep(t)
