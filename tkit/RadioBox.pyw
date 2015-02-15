@@ -4,12 +4,17 @@ import ttk, tkMessageBox, tkFileDialog
 # RadioBox (done)
 class RadioBox(ttk.LabelFrame):
     ''' Allows user to easily place radio buttions into a labelframe '''
-    def __init__(self, root, str_var, labelframe_text, box_side, box_anchor, box_fill, box_expand, box_padx, box_pady, r_alignment = 'horizontal'):
+    def __init__(self, root, var_type, labelframe_text, box_side,
+                 box_anchor, box_fill, box_expand, r_alignment = 'horizontal'):
         # Container
         self.Container = ttk.LabelFrame(root, text=labelframe_text) 
-        self.Container.pack(fill=box_fill, expand=box_expand, side=box_side, anchor=box_anchor, padx=box_padx, pady=box_pady)
-        # Default radiobutton value   
-        self.radio_value = tk.IntVar() #str_var
+        self.Container.pack(fill=box_fill, expand=box_expand, side=box_side, anchor=box_anchor, padx=5, pady=5)
+        
+        # Default radiobutton value
+        if var_type == "string" or var_type == "str":
+            self.radio_value = tk.StringVar()
+        else:
+            self.radio_value = tk.IntVar()
         #self.radio_value.set('None')
         # Alignment method for radio buttons ('horizontal' or 'vertical')
         # What if the user wants a grid of radio buttons? N x N or max_row / max_col?
@@ -41,7 +46,7 @@ class TestApp(tk.Frame):
         tk.Frame.__init__(self, root)
         self.rOption = tk.StringVar()
         self.rOption.set('None')
-        radiobox = RadioBox(self, self.rOption, ' Radios ', 'top', 'nw', 'both', 'yes', 5, 5, 1)
+        radiobox = RadioBox(self, self.rOption, ' Radios ', 'top', 'nw', 'both', 'yes', 1)
         radiobox.add_button('Option 1', 'One')
         radiobox.add_button('Option 2', 'Two')
         radiobox.add_button('Option 3', 'Three')

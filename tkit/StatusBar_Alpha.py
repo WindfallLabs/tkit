@@ -11,6 +11,7 @@ logging.basicConfig(level=logging.DEBUG,
 class Statusbar(tk.Frame):
     """ Places status bar and label in frame """
     def __init__(self, root, disable_button=None):
+        tk.Frame.__init__(self, root)
         self.root = root
         self.status_thread = ThreadedClient("Statusbar", self.start_bar)
         self.wait_event = threading.Event()
@@ -22,16 +23,18 @@ class Statusbar(tk.Frame):
 
         # Statusbar container
         self.bar = ttk.Frame(root, relief='raised')
-        self.bar.pack(side='bottom', anchor='sw',
+        
+        self.bar.pack(side='bottom', anchor='s',
                             fill='x', expand='yes',
                             padx=0, pady=0)
+        
         self.status_label = ttk.Label(self.bar,
                                       text=self.labels[0])
         self.status_label.pack(side='left', anchor='sw',
                                padx=2, pady=5)
                 
         self.progressbar = ttk.Progressbar(self.bar, orient='horizontal',
-                                           length=300, mode='indeterminate')
+                                           length=200, mode='indeterminate')
 
         self.reset_but = tk.Button(self.bar, text="Reset", command=self.reset)
         #self.reset_but.pack(side='right')

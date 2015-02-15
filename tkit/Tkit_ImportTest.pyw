@@ -18,44 +18,42 @@ class TestApp(tk.Frame):
     ''' Testing GUI '''
     def __init__(self, root):
         tk.Frame.__init__(self, root)
-        
+        self.root = root
         
         
         ''' Window Properties '''
         root.title('Testing window')
-        #root.geometry('200x150')
+        #self.root.geometry('300x300')
         resize = True
         if resize == False:
-            root.resizable(0,0)
-        root.lift()
-        root.focus_force()
-        root.deiconify()
+            self.root.resizable(0,0)
+        self.root.lift()
+        self.root.focus_force()
+        self.root.deiconify()
 
         ''' Layout '''
         # Browse Field
         BrowseField(self)
 
-            #showbutton = ttk.Button(self, text='Show Value', command=radiobox.print_selected)
+        #showbutton = ttk.Button(self, text='Show Value', command=radiobox.print_selected)
         self.Ok_but = ttk.Button(self, text=' Test Status ', command=self.call_main)
-        self.Ok_but.pack(side = 'right', anchor = 'se', padx=5, pady=5)
+        #self.Ok_but.pack(side='left', anchor = 'e', padx=5, pady=5)
         
         # Status Bar
         self.statusbar = Statusbar(self, self.Ok_but)
-        
-        self.radiobox = RadioBox(self, 5, 'top', 'right', 'n', 'both', 5, 5, 1)
+
+        self.Ok_but.pack(side='right', anchor = 'se', padx=5, pady=5)
+        self.radiobox = RadioBox(self, 'int', ' Wait Time ',
+                                 'right', 'nw', 'both', 1)
         self.radiobox.add_button('Five', 5)
         self.radiobox.add_button('Fifteen', 15)
-        #self.radiobox.add_button('Option 3', 'Three')
-        
-        
-        # Show r_value button
 
+        
+        
         FileTree(self)
-        
 
         
-        #self.prog_bar = ttk.Progressbar(self, orient="horizontal", mode="indeterminate")
-        #self.prog_bar.pack(side='top', fill='x', expand='yes')
+        
 
     def call_main(self, *event):
         """ Threadifies Main() and passes parameters to it """
