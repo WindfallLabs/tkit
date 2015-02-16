@@ -18,7 +18,7 @@ class BrowseEntry(ttk.LabelFrame):
     def __init__(self, root):
         self.root = root
         # Input Frame
-        self.Container = ttk.LabelFrame(root, text=' Select File')
+        self.Container = ttk.LabelFrame(root, text=" Select File ")
         self.Container.pack(side='top', anchor='n', fill='x',
                             expand='yes', padx=5, pady=5)
 
@@ -44,7 +44,7 @@ class BrowseEntry(ttk.LabelFrame):
             browseBut.config(image = self.opengif)
         except:
             browseBut = ttk.Button(self.Container,
-                                   text=' ... ',
+                                   text=" ... ",
                                    command=self.browse)
             
         browseBut.pack(side='right', anchor='ne', padx=5, pady=5)
@@ -61,7 +61,7 @@ class BrowseEntry(ttk.LabelFrame):
 
         # Place in entry box
         parent_dir = path.dirname(browse_file)
-        self.fileEntry.delete(0, "end")
+        self.fileEntry.delete(0, 'end')
         self.fileEntry.insert(0, browse_file)
         self.fileVar.set(browse_file)
         return browse_file, parent_dir
