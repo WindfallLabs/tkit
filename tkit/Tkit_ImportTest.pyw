@@ -7,8 +7,8 @@ import AppTools
 
 from BrowseEntry import *
 from FileTree import *
-from RadioBox import *
-from StatusBar_Alpha import *
+from Radiobox import *
+from Statusbar import *
 
 
 # Testing GUI
