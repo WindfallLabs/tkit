@@ -75,7 +75,7 @@ class _App(tk.Frame):
 
         self.Ok_but = ttk.Button(text=" Print ",
                                  command = self.radiobox._print_selected)
-        self.Ok_but.pack()
+        self.Ok_but.pack(side='bottom')
         
         
 if __name__ == '__main__':

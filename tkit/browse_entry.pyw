@@ -23,7 +23,6 @@ class BrowseEntry(ttk.LabelFrame):
                             expand='yes', padx=5, pady=5)
 
         # Default filetypes
-        
         self.FILEOPENOPTIONS = dict(defaultextension='*.*',
                   filetypes=[('All files','*.*')])
 
