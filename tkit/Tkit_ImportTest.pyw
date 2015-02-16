@@ -1,28 +1,25 @@
 import threading
 import Queue
 import Tkinter as tk
-import ttk, tkFileDialog, tkMessageBox
+import ttk
 
-try:
-    from BrowseField import *
-    from FileTree import *
-    from RadioBox import *
-    #from StatusBar import *
-    from StatusBar_Alpha import *
-except:
-    print "Failed to import Tkit contents"
+import AppTools
+
+from BrowseEntry import *
+from FileTree import *
+from RadioBox import *
+from StatusBar_Alpha import *
 
 
 # Testing GUI
-class TestApp(tk.Frame):
-    ''' Testing GUI '''
+class App(tk.Frame):
+    """ Testing GUI """
     def __init__(self, root):
         tk.Frame.__init__(self, root)
         self.root = root
         
-        
-        ''' Window Properties '''
-        root.title('Testing window')
+        """ Window Properties """
+        self.root.title('Tkit Import Test App')
         #self.root.geometry('300x300')
         resize = True
         if resize == False:
@@ -31,19 +28,18 @@ class TestApp(tk.Frame):
         self.root.focus_force()
         self.root.deiconify()
 
-        ''' Layout '''
+        """ Widgets """
+        
         # Browse Field
-        BrowseField(self)
+        BrowseEntry(self)
 
-        #showbutton = ttk.Button(self, text='Show Value', command=radiobox.print_selected)
         self.Ok_but = ttk.Button(self, text=' Test Status ', command=self.call_main)
-        #self.Ok_but.pack(side='left', anchor = 'e', padx=5, pady=5)
         
         # Status Bar
         self.statusbar = Statusbar(self, self.Ok_but)
 
         self.Ok_but.pack(side='right', anchor = 'se', padx=5, pady=5)
-        self.radiobox = RadioBox(self, 'int', ' Wait Time ',
+        self.radiobox = Radiobox(self, 'int', ' Wait Time ',
                                  'right', 'nw', 'both', 1)
         self.radiobox.add_button('Five', 5)
         self.radiobox.add_button('Fifteen', 15)
@@ -53,28 +49,17 @@ class TestApp(tk.Frame):
         FileTree(self)
 
         
-        
-
     def call_main(self, *event):
         """ Threadifies Main() and passes parameters to it """
-        self.main_thread = ThreadedClient("Main",
+        self.main_thread = AppTools.ThreadedClient("Main",
                                           lambda: self.Main(self.radiobox.get_selected()))
         self.main_thread.start()
 
     def Main(self, t):
         """ emulates process """
-        #self.Ok_but.config(state="disabled")
         self.statusbar.start()
         sleep(t)
         self.statusbar.stop()
 
-def build_GUI():
-    root = tk.Tk()
-    TestApp(root).pack(fill='both', expand='yes')
-    root.title("TestApp")
-    root.mainloop()
-
 if __name__ == '__main__':
-    GUI = threading.Thread(name="GUI", target=build_GUI)
-    GUI.start()
-    GUI.join()
+    AppTools.thread_GUI(App)

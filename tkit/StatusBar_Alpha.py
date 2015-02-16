@@ -1,5 +1,6 @@
 import Tkinter as tk
 import ttk
+import AppTools
 import threading
 import logging
 from time import sleep
@@ -13,7 +14,8 @@ class Statusbar(tk.Frame):
     def __init__(self, root, disable_button=None):
         tk.Frame.__init__(self, root)
         self.root = root
-        self.status_thread = ThreadedClient("Statusbar", self.start_bar)
+        self.status_thread = AppTools.ThreadedClient("Statusbar",
+                                                     self.start_bar)
         self.wait_event = threading.Event()
         self.root_but = disable_button
 
@@ -46,7 +48,7 @@ class Statusbar(tk.Frame):
         self.root_but.config(state="enabled")
         self.progressbar.pack_forget()
         self.update_bar()
-        self.status_thread = ThreadedClient("Statusbar", self.start_bar)
+        self.status_thread = AppTools.ThreadedClient("Statusbar", self.start_bar)
         self.wait_event = threading.Event()
         self.reset_but.pack_forget()
 
@@ -62,7 +64,6 @@ class Statusbar(tk.Frame):
         elif self.cur_status == 2:
             self.reset_but.pack(side='right')
             #self.progressbar.pack_forget() # Issue here
-            pass
 
     def start_bar(self):
         self.root_but.config(state="disabled")
@@ -79,35 +80,20 @@ class Statusbar(tk.Frame):
     def stop(self):
         self.wait_event.set()
         self.update_bar()
-        #
-
-class ThreadedClient(threading.Thread):
-    def __init__(self, name, process):
-        """ Subclass of thread allows for easier thread creation """
-        threading.Thread.__init__(self)
-        self.name = name
-        self.process = process
-        
-    def run(self):
-        """ Wait for event to be set before doing anything """
-        logging.debug('{0} thread started'.format(self.name))
-        self.process()
-        logging.debug('{0} thread terminated'.format(self.name))
         
 
 #===================================================================
-# End of StatusBar Module -- to be imported
+# End of StatusBar Module
 #===================================================================
-# Application code:
-#import Statusbar
+# Test Application code:
 
-class TestApp(tk.Frame):
+class _App(tk.Frame):
     """ Testing GUI """
     def __init__(self, root):
         """ Parent window properties """
-        
         tk.Frame.__init__(self, root)
         self.root = root
+        self.root.title("Statusbar Testing App")
         self.root.geometry('160x100')
 
         """ Testing Variables """
@@ -143,10 +129,9 @@ class TestApp(tk.Frame):
 
     def call_main(self, *event):
         """ Threadifies Main() and passes parameters to it """
-        self.main_thread = ThreadedClient("Main",
+        self.main_thread = AppTools.ThreadedClient("Main",
                                           lambda: self.Main(self.Main_val))
         self.main_thread.start()
-
 
     def Main(self, t):
         """ emulates process """
@@ -157,13 +142,6 @@ class TestApp(tk.Frame):
         self.statusbar.stop() # Should also hide/pack_forget the prog bar
         
 
-def build_GUI():
-    root = tk.Tk()
-    TestApp(root).pack(fill='both', expand='yes')
-    root.title("App")
-    root.mainloop()
-
 if __name__ == '__main__':
-    GUI = ThreadedClient("GUI", build_GUI)
-    GUI.start()
-    GUI.join()
+    AppTools.thread_GUI(_App)
+    

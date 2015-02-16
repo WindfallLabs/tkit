@@ -1,8 +1,9 @@
 import Tkinter as tk
-import ttk, tkMessageBox, tkFileDialog
+import ttk
+import AppTools
 
 # RadioBox (done)
-class RadioBox(ttk.LabelFrame):
+class Radiobox(ttk.LabelFrame):
     ''' Allows user to easily place radio buttions into a labelframe '''
     def __init__(self, root, var_type, labelframe_text, box_side,
                  box_anchor, box_fill, box_expand, r_alignment = 'horizontal'):
@@ -34,26 +35,34 @@ class RadioBox(ttk.LabelFrame):
     def get_selected(self):
         return self.radio_value.get()
         
-    def print_selected(self):
+    def _print_selected(self):
         ''' For Testing '''
         print self.radio_value.get()
 
+#===================================================================
+# End of Radiobox Module
+#===================================================================
+# Test Application code:
 
-# Testing GUI
-class TestApp(tk.Frame):
-    ''' Testing GUI '''
+class _App(tk.Frame):
+    """ Testing GUI """
     def __init__(self, root):
+        """ Parent window properties """
         tk.Frame.__init__(self, root)
-        self.rOption = tk.StringVar()
-        self.rOption.set('None')
-        radiobox = RadioBox(self, self.rOption, ' Radios ', 'top', 'nw', 'both', 'yes', 1)
-        radiobox.add_button('Option 1', 'One')
-        radiobox.add_button('Option 2', 'Two')
-        radiobox.add_button('Option 3', 'Three')
+        self.root = root
+        self.root.title("Radiobox Test App")
+
+        """ Widgets """
+        
+        self.radiobox = Radiobox(self, 'str', ' Radios ', 'top', 'nw', 'both', 'yes', 1)
+        self.radiobox.add_button('Option 1', 'One')
+        self.radiobox.add_button('Option 2', 'Two')
+        self.radiobox.add_button('Option 3', 'Three')
+
+        self.Ok_but = ttk.Button(text=" Print ",
+                                 command = self.radiobox._print_selected)
+        self.Ok_but.pack()
         
         
 if __name__ == '__main__':
-    root = tk.Tk()
-    TestApp(root).pack(fill='both', expand=True)
-    root.title('Test App')
-    root.mainloop()
+    AppTools.thread_GUI(_App)
