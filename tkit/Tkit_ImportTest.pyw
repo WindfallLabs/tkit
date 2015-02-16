@@ -3,12 +3,12 @@ import Queue
 import Tkinter as tk
 import ttk
 
-import AppTools
+import apptools
 
-from BrowseEntry import *
-from FileTree import *
-from Radiobox import *
-from Statusbar import *
+from browse_entry import *
+from file_tree import *
+from radiobox import *
+from statusbar import *
 
 
 # Testing GUI
@@ -51,7 +51,7 @@ class App(tk.Frame):
         
     def call_main(self, *event):
         """ Threadifies Main() and passes parameters to it """
-        self.main_thread = AppTools.ThreadedClient("Main",
+        self.main_thread = apptools.ThreadedClient("Main",
                                           lambda: self.Main(self.radiobox.get_selected()))
         self.main_thread.start()
 
@@ -62,4 +62,4 @@ class App(tk.Frame):
         self.statusbar.stop()
 
 if __name__ == '__main__':
-    AppTools.thread_GUI(App)
+    apptools.thread_GUI(App)

@@ -1,13 +1,21 @@
+""" A file browser-entry box """
+# Dev Notes:
+__status__ = 'alpha'
+#   Implement copy/paste functionality
+#   Implement filetype dictionary creation functionality
+#   Consider threading the browser
+#   Clean code
+#
+
+# Imports
 import Tkinter as tk
-import ttk, tkFileDialog
+import ttk
+import tkFileDialog
+from os import path, getcwd
 
 import apptools
 
-from os import path
-from os import getcwd
 
-
-# Browse Field (finalizing)
 class BrowseEntry(ttk.LabelFrame):
     """ Pre-built open-file dialog/entry """
     def __init__(self, root):
@@ -20,7 +28,7 @@ class BrowseEntry(ttk.LabelFrame):
         self.fileEntry = ttk.Entry(self.Container, width=30)
         self.fileEntry.pack(side='left', anchor='nw', fill='x', expand='yes', padx=5, pady=5)
         
-        # Implement copy/paste
+        # Copy/paste
         # Browse Button
         try:
             #gif = getcwd() + '/Icons/openfolder.gif'
@@ -61,7 +69,7 @@ class BrowseEntry(ttk.LabelFrame):
 # https://stackoverflow.com/questions/4297949/image-on-a-button
 
 #===================================================================
-# End of BrowseField Module
+# End of browse_entry Module
 #===================================================================
 # Test Application code:
 

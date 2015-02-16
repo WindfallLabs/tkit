@@ -1,15 +1,21 @@
+""" A tk list-tree """
+# Dev Notes:
+__status__ = 'pre-alpha'
+#   Implement file browser functionality
+#   Test
+#
+
+# Imports
 import Tkinter as tk
 import ttk
 
 import apptools
 
-# Consider "ProcessingQueue" as name
+
+# Consider "ListTree" as name
 class FileTree(ttk.LabelFrame):
-    ''' Allows user to easily manipulate columns of data '''
+    """ Allows user to easily manipulate columns of data """
     def __init__(self, root):
-        #self.framelabel = labelframe_text
-        #self.columns = column_num
-        #
         self.container = ttk.LabelFrame(root, text=' Tabel Label ')
         self.container.pack(side='top', anchor='n', fill='x', expand='yes', padx=5, pady=5)
         self.headers = "Col 1"
@@ -24,7 +30,7 @@ class FileTree(ttk.LabelFrame):
         tree.pack(fill='x')
 
     def add_controls(self):
-        ''' Controls for manipulating Tree contents '''
+        """ Controls for manipulating Tree contents """
         # Add button - adds table contents
         self.AddBut = ttk.Button(self.container, text='Add')
         self.AddBut.pack(side='left')
@@ -34,12 +40,12 @@ class FileTree(ttk.LabelFrame):
    
 
 #===================================================================
-# End of Radiobox Module
+# End of file_tree Module
 #===================================================================
 # Test Application code:
 
 class _App(tk.Frame):
-    ''' Testing GUI '''
+    """ Testing GUI """
     def __init__(self, root):
         tk.Frame.__init__(self, root)
         FileTree(self)
