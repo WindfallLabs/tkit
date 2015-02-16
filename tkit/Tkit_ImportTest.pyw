@@ -42,6 +42,7 @@ class App(tk.Frame):
         self.radiobox = Radiobox(self, 'int', ' Wait Time ',
                                  'right', 'nw', 'both', 1)
         self.radiobox.add_button('Five', 5)
+        self.radiobox.add_button('Ten', 10)
         self.radiobox.add_button('Fifteen', 15)
 
         
