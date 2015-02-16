@@ -1,15 +1,28 @@
+""" A label frame containing radiobuttons """
+# Dev Notes:
+__status__ = 'alpha'
+#   Implement m by n matrix style setup
+#   Fix horizontal vs vertical orientations
+#   Test str vs int variable type uses
+#   Consider cleaner __int__ with less args
+#   Clean code
+#
+
+# Imports
 import Tkinter as tk
 import ttk
-import AppTools
 
-# RadioBox (done)
+import apptools
+
+
 class Radiobox(ttk.LabelFrame):
     ''' Allows user to easily place radio buttions into a labelframe '''
     def __init__(self, root, var_type, labelframe_text, box_side,
-                 box_anchor, box_fill, box_expand, r_alignment = 'horizontal'):
+                 box_anchor, box_fill, box_expand, r_alignment='horizontal'):
         # Container
         self.Container = ttk.LabelFrame(root, text=labelframe_text) 
-        self.Container.pack(fill=box_fill, expand=box_expand, side=box_side, anchor=box_anchor, padx=5, pady=5)
+        self.Container.pack(fill=box_fill, expand=box_expand, side=box_side,
+                            anchor=box_anchor, padx=5, pady=5)
         
         # Default radiobutton value
         if var_type == "string" or var_type == "str":
@@ -25,7 +38,8 @@ class Radiobox(ttk.LabelFrame):
         self.r_row = 0
         
     def add_button(self, radio_name, in_value):
-        rbutton = ttk.Radiobutton(self.Container, text=radio_name, value=in_value, variable=self.radio_value)
+        rbutton = ttk.Radiobutton(self.Container, text=radio_name,
+                                  value=in_value, variable=self.radio_value)
         rbutton.grid(column = self.r_column, row = self.r_row)
         if self.button_alignment == 'horizontal':
             self.r_column += 1
@@ -36,11 +50,11 @@ class Radiobox(ttk.LabelFrame):
         return self.radio_value.get()
         
     def _print_selected(self):
-        ''' For Testing '''
+        """ For Testing """
         print self.radio_value.get()
 
 #===================================================================
-# End of Radiobox Module
+# End of radiobox Module
 #===================================================================
 # Test Application code:
 
@@ -54,7 +68,7 @@ class _App(tk.Frame):
 
         """ Widgets """
         
-        self.radiobox = Radiobox(self, 'str', ' Radios ', 'top', 'nw', 'both', 'yes', 1)
+        self.radiobox = Radiobox(self, 'str', " Radios ", 'top', 'nw', 'both', 'yes', 1)
         self.radiobox.add_button('Option 1', 'One')
         self.radiobox.add_button('Option 2', 'Two')
         self.radiobox.add_button('Option 3', 'Three')
@@ -65,4 +79,4 @@ class _App(tk.Frame):
         
         
 if __name__ == '__main__':
-    AppTools.thread_GUI(_App)
+    apptools.thread_GUI(_App)

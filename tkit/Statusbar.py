@@ -1,9 +1,22 @@
+""" Statusbar containing status and progress bar """
+# Dev Notes:
+__status__ = 'alpha'
+#   Known bugs:
+#       Progressbar should get removed once status == 'Done'
+#       Until the above is solved, a reset button is used
+#           The reset button should be at left of prog bar
+#
+
+# Imports
 import Tkinter as tk
 import ttk
-import AppTools
+
 import threading
 import logging
 from time import sleep
+
+import apptools
+
 
 logging.basicConfig(level=logging.DEBUG,
                     format='(%(threadName)-10s) %(message)s')
@@ -14,7 +27,7 @@ class Statusbar(tk.Frame):
     def __init__(self, root, disable_button=None):
         tk.Frame.__init__(self, root)
         self.root = root
-        self.status_thread = AppTools.ThreadedClient("Statusbar",
+        self.status_thread = apptools.ThreadedClient("Statusbar",
                                                      self.start_bar)
         self.wait_event = threading.Event()
         self.root_but = disable_button
@@ -29,17 +42,19 @@ class Statusbar(tk.Frame):
         self.bar.pack(side='bottom', anchor='s',
                             fill='x', expand='yes',
                             padx=0, pady=0)
-        
+
+        # Status labels
         self.status_label = ttk.Label(self.bar,
                                       text=self.labels[0])
         self.status_label.pack(side='left', anchor='sw',
                                padx=2, pady=5)
-                
+
+        # Progress bar
         self.progressbar = ttk.Progressbar(self.bar, orient='horizontal',
                                            length=200, mode='indeterminate')
 
+        # Reset button
         self.reset_but = tk.Button(self.bar, text="Reset", command=self.reset)
-        #self.reset_but.pack(side='right')
         self.reset_but.config(relief='flat',
                               overrelief="groove",
                               height=0)
@@ -48,7 +63,8 @@ class Statusbar(tk.Frame):
         self.root_but.config(state="enabled")
         self.progressbar.pack_forget()
         self.update_bar()
-        self.status_thread = AppTools.ThreadedClient("Statusbar", self.start_bar)
+        self.status_thread = apptools.ThreadedClient("Statusbar",
+                                                     self.start_bar)
         self.wait_event = threading.Event()
         self.reset_but.pack_forget()
 
@@ -66,7 +82,7 @@ class Statusbar(tk.Frame):
             #self.progressbar.pack_forget() # Issue here
 
     def start_bar(self):
-        self.root_but.config(state="disabled")
+        self.root_but.config(state='disabled')
         self.progressbar.start(1)
         self.wait_event.wait()
         logging.debug("Status wait event done")
@@ -83,7 +99,7 @@ class Statusbar(tk.Frame):
         
 
 #===================================================================
-# End of StatusBar Module
+# End of statusBar Module
 #===================================================================
 # Test Application code:
 
@@ -127,9 +143,9 @@ class _App(tk.Frame):
 
     """ Main Method(s) """
 
-    def call_main(self, *event):
+    def call_main(self, event=None):
         """ Threadifies Main() and passes parameters to it """
-        self.main_thread = AppTools.ThreadedClient("Main",
+        self.main_thread = apptools.ThreadedClient("Main",
                                           lambda: self.Main(self.Main_val))
         self.main_thread.start()
 
@@ -143,5 +159,5 @@ class _App(tk.Frame):
         
 
 if __name__ == '__main__':
-    AppTools.thread_GUI(_App)
+    apptools.thread_GUI(_App)
     
