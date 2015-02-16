@@ -1,7 +1,7 @@
 import Tkinter as tk
 import ttk
 
-import AppTools
+import apptools
 
 # Consider "ProcessingQueue" as name
 class FileTree(ttk.LabelFrame):
@@ -46,4 +46,4 @@ class _App(tk.Frame):
 
 
 if __name__ == '__main__':
-    AppTools.thread_GUI(_App)
+    apptools.thread_GUI(_App)

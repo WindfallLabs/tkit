@@ -1,7 +1,7 @@
 import Tkinter as tk
 import ttk, tkFileDialog
 
-import AppTools
+import apptools
 
 from os import path
 from os import getcwd
@@ -73,4 +73,4 @@ class _App(tk.Frame):
 
 
 if __name__ == '__main__':
-    AppTools.thread_GUI(_App)
+    apptools.thread_GUI(_App)
