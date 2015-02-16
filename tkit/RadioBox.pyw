@@ -29,7 +29,7 @@ class Radiobox(ttk.LabelFrame):
             self.radio_value = tk.StringVar()
         else:
             self.radio_value = tk.IntVar()
-        #self.radio_value.set('None')
+
         # Alignment method for radio buttons ('horizontal' or 'vertical')
         # What if the user wants a grid of radio buttons? N x N or max_row / max_col?
         #alignment_methods = {0: 'horizontal', 1: 'vertical'}

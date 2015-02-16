@@ -99,7 +99,7 @@ class Statusbar(tk.Frame):
         
 
 #===================================================================
-# End of statusBar Module
+# End of statusbar Module
 #===================================================================
 # Test Application code:
 
