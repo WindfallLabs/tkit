@@ -38,13 +38,16 @@ class FileTree(ttk.LabelFrame):
                                   command=self.add_file)
         self.Add_but.pack(side='left')
         # Remove button - removes selected table contents
-        self.Remove_but = ttk.Button(self.container, text='Remove')
+        self.Remove_but = ttk.Button(self.container, text='Remove',
+                                     command=self.rm_file)
         self.Remove_but.pack(side='right')
         
         # Default filetypes
         self.FILEOPENOPTIONS = dict(defaultextension='*.*',
                   filetypes=[('All files','*.*')])
-
+        
+        # Vars
+        self.fileList = []
         self.fileVar = tk.StringVar()
         
     def set_filetypes(self, default_ext, types_tupelist):
@@ -56,10 +59,27 @@ class FileTree(ttk.LabelFrame):
         """ Opens file browser and places selected file(s) in tree """
         new_file = tkFileDialog.askopenfilenames(parent=self.root,
                                                         **self.FILEOPENOPTIONS)
+        if " " in new_file:
+            add_files = new_file.split(" ")
+            for f in add_files:
+                self.fileList.append(f)
+                self.tree.insert("", 'end', values=f)
+        else:
         # Place in tree
-        parent_dir = path.dirname(new_file)
-        self.fileVar.set(new_file)
-        self.tree.insert("", 'end', values=self.fileVar.get())
+        #parent_dir = path.dirname(new_file)
+            self.fileList.append(new_file)
+            self.tree.insert("", 'end', values=self.fileVar.get())
+        
+    def rm_file(self):
+        """ Removes selected file from tree """
+        current_val = self.tree.item(self.tree.focus())['values'][0]
+        self.tree.delete(self.tree.focus())
+        self.fileList.remove(current_val)
+            
+    def get_list(self):
+        print self.fileList
+        return self.fileList
+        
 
 
 #===================================================================
@@ -72,6 +92,10 @@ class _App(tk.Frame):
     def __init__(self, root):
         tk.Frame.__init__(self, root)
         self.filetree = FileTree(self)
+        
+        self.Ok_but = ttk.Button(text=" Pass ",
+                                 command=self.filetree.get_list)
+        self.Ok_but.pack(side='bottom')
 
 
 if __name__ == '__main__':

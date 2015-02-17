@@ -58,11 +58,11 @@ class BrowseEntry(ttk.LabelFrame):
                                                         **self.FILEOPENOPTIONS)
 
         # Place in entry box
-        parent_dir = path.dirname(browse_file)
+        #parent_dir = path.dirname(browse_file)
         self.fileEntry.delete(0, 'end')
         self.fileEntry.insert(0, browse_file)
         self.fileVar.set(browse_file)
-        return browse_file, parent_dir
+        #return browse_file, parent_dir
         
     def get_fileVar(self):
         return self.fileVar.get()
