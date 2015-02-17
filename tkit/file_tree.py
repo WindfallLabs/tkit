@@ -1,6 +1,6 @@
 """ A tk list-tree """
 # Dev Notes:
-__status__ = 'pre-alpha'
+__status__ = 'alpha'
 #   Implement file browser functionality
 #   Test
 #
