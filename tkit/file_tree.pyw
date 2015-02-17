@@ -9,6 +9,7 @@ __status__ = 'pre-alpha'
 import Tkinter as tk
 import ttk
 import tkFileDialog
+from os import path
 
 import apptools
 
@@ -26,14 +27,15 @@ class FileTree(ttk.LabelFrame):
         self.headers = "Col 1"
 
         # Tree
-        tree = ttk.Treeview(self.container, show="headings",height=5)
-        tree["columns"] = "single"
-        tree.column("single", width=200)
-        tree.heading("single", text="Input Files")
-        tree.pack(fill='x')
+        self.tree = ttk.Treeview(self.container, show="headings",height=5)
+        self.tree["columns"] = "single"
+        self.tree.column("single", width=200)
+        self.tree.heading("single", text="Input Files")
+        self.tree.pack(fill='x')
 
         # Add button - adds table contents
-        self.Add_but = ttk.Button(self.container, text='Add')
+        self.Add_but = ttk.Button(self.container, text='Add',
+                                  command=self.add_file)
         self.Add_but.pack(side='left')
         # Remove button - removes selected table contents
         self.Remove_but = ttk.Button(self.container, text='Remove')
@@ -42,6 +44,8 @@ class FileTree(ttk.LabelFrame):
         # Default filetypes
         self.FILEOPENOPTIONS = dict(defaultextension='*.*',
                   filetypes=[('All files','*.*')])
+
+        self.fileVar = tk.StringVar()
         
     def set_filetypes(self, default_ext, types_tupelist):
         self.FILEOPENOPTIONS = None
@@ -50,9 +54,13 @@ class FileTree(ttk.LabelFrame):
         
     def add_file(self):
         """ Opens file browser and places selected file(s) in tree """
-        browse_file = tkFileDialog.askopenfilenames(parent=self.root,
+        new_file = tkFileDialog.askopenfilenames(parent=self.root,
                                                         **self.FILEOPENOPTIONS)
-   
+        # Place in tree
+        parent_dir = path.dirname(new_file)
+        self.fileVar.set(new_file)
+        self.tree.insert("", 'end', values=self.fileVar.get())
+
 
 #===================================================================
 # End of file_tree Module

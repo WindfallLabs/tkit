@@ -38,15 +38,14 @@ class BrowseEntry(ttk.LabelFrame):
         try:
             gif = r"C:\Workspace\PROJECTS\Tkit\Tkit\Icons\openfolder.gif"
             self.opengif = tk.PhotoImage(file=gif)
-            browseBut = ttk.Button(self.Container,
+            self.browseBut = ttk.Button(self.Container,
                                    command=self.browse)
-            browseBut.config(image = self.opengif)
+            self.browseBut.config(image = self.opengif)
         except:
-            browseBut = ttk.Button(self.Container,
+            self.browseBut = ttk.Button(self.Container,
                                    text=" ... ",
                                    command=self.browse)
-            
-        browseBut.pack(side='right', anchor='ne', padx=5, pady=5)
+        self.browseBut.pack(side='right', anchor='ne', padx=5, pady=5)
     
     def set_filetypes(self, default_ext, types_tupelist):
         self.FILEOPENOPTIONS = None
