@@ -68,7 +68,7 @@ class FileTree(ttk.LabelFrame):
         # Place in tree
         #parent_dir = path.dirname(new_file)
             self.fileList.append(new_file)
-            self.tree.insert("", 'end', values=self.fileVar.get())
+            self.tree.insert("", 'end', values=new_file)
         
     def rm_file(self):
         """ Removes selected file from tree """
