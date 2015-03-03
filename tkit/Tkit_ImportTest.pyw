@@ -36,7 +36,8 @@ class App(tk.Frame):
         # Browse Field
         self.browse_ent = BrowseEntry(self)
 
-        self.Ok_but = ttk.Button(self, text=' Test Status ', command=self.call_main)
+        self.Ok_but = ttk.Button(self, text=' Test Status ',
+                                 command=self.call_main)
         
         # Status Bar
         self.statusbar = Statusbar(self, self.Ok_but)
@@ -71,7 +72,9 @@ class App(tk.Frame):
     def call_main(self, event=None):
         """ Threadifies Main() and passes parameters to it """
         self.main_thread = apptools.ThreadedClient("Main",
-                                          lambda: self.Main(self.radiobox.get_selected()))
+                                    lambda: self.Main(
+                                        self.radiobox.get_selected()
+                                        ))
         self.main_thread.start()
 
     def Main(self, t):

@@ -20,6 +20,9 @@ class FileTree(ttk.LabelFrame):
     def __init__(self, root):
         self.root = root
         
+        # Vars        
+        self.fileList = []
+        
         # Container
         self.container = ttk.LabelFrame(root, text=' Tabel Label ')
         self.container.pack(side='top', anchor='n', fill='x',
@@ -32,11 +35,16 @@ class FileTree(ttk.LabelFrame):
         self.tree.column("single", width=200)
         self.tree.heading("single", text="Input Files")
         self.tree.pack(fill='x')
+        
+        # Duplicate Warning
+        self.warning = ttk.Label(self.container,
+                                 text="Warning:\nDuplicates will be removed")
 
         # Add button - adds table contents
         self.Add_but = ttk.Button(self.container, text='Add',
                                   command=self.add_file)
         self.Add_but.pack(side='left')
+        
         # Remove button - removes selected table contents
         self.Remove_but = ttk.Button(self.container, text='Remove',
                                      command=self.rm_file)
@@ -46,9 +54,6 @@ class FileTree(ttk.LabelFrame):
         self.FILEOPENOPTIONS = dict(defaultextension='*.*',
                   filetypes=[('All files','*.*')])
         
-        # Vars
-        self.fileList = []
-        self.fileVar = tk.StringVar()
         
     def set_filetypes(self, default_ext, types_tupelist):
         self.FILEOPENOPTIONS = None
@@ -58,25 +63,32 @@ class FileTree(ttk.LabelFrame):
     def add_file(self):
         """ Opens file browser and places selected file(s) in tree """
         new_file = tkFileDialog.askopenfilenames(parent=self.root,
-                                                        **self.FILEOPENOPTIONS)
+                                                 **self.FILEOPENOPTIONS)
         if " " in new_file:
             add_files = new_file.split(" ")
             for f in add_files:
                 self.fileList.append(f)
                 self.tree.insert("", 'end', values=f)
         else:
-        # Place in tree
-        #parent_dir = path.dirname(new_file)
             self.fileList.append(new_file)
             self.tree.insert("", 'end', values=new_file)
+        # Displays duplicate warning
+        if len(self.fileList) != len(set(self.fileList)):
+            self.warning.pack(side='bottom')
+        
         
     def rm_file(self):
         """ Removes selected file from tree """
         current_val = self.tree.item(self.tree.focus())['values'][0]
         self.tree.delete(self.tree.focus())
         self.fileList.remove(current_val)
+        # Attempts to remove duplicate warning
+        if len(self.fileList) == len(set(self.fileList)):
+            self.warning.pack_forget()
             
     def get_list(self):
+        """ Returns selected list of selected files """
+        self.fileList = list(set(self.fileList))
         print self.fileList
         return self.fileList
         

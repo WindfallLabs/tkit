@@ -60,6 +60,7 @@ class Statusbar(tk.Frame):
                               height=0)
 
     def reset(self):
+        """ Resets the status bar """
         self.root_but.config(state="enabled")
         self.progressbar.pack_forget()
         self.update_bar()
@@ -69,7 +70,7 @@ class Statusbar(tk.Frame):
         self.reset_but.pack_forget()
 
     def update_bar(self):
-        """ changes status label and packs/unpacks progress bar """
+        """ Changes status label and packs/unpacks progress bar """
         self.cur_status += 1
         if self.cur_status > 2:
             self.cur_status = 0
@@ -82,6 +83,7 @@ class Statusbar(tk.Frame):
             #self.progressbar.pack_forget() # Issue here
 
     def start_bar(self):
+        """ Controls the bar """
         self.root_but.config(state='disabled')
         self.progressbar.start(1)
         self.wait_event.wait()
@@ -90,10 +92,12 @@ class Statusbar(tk.Frame):
         logging.debug("Bar stopped")
 
     def start(self):
+        """ Starts the status thread """
         self.update_bar()
         self.status_thread.start()
 
     def stop(self):
+        """ Stops the bar at the event flag """
         self.wait_event.set()
         self.update_bar()
         
