@@ -13,8 +13,8 @@ from os import path, getcwd
 import apptools
 
 
-class BrowseEntry(ttk.LabelFrame):
-    """ Pre-built open-file dialog/entry """
+class BrowseFile(ttk.LabelFrame):
+    """Select a file(s) and add it to an entrybox"""
     def __init__(self, root):
         self.root = root
         # Input Frame
@@ -39,23 +39,25 @@ class BrowseEntry(ttk.LabelFrame):
             gif = r"C:\Workspace\PROJECTS\Tkit\Tkit\Icons\openfolder.gif"
             self.opengif = tk.PhotoImage(file=gif)
             self.browseBut = ttk.Button(self.Container,
-                                   command=self.browse)
+                                   command=self._browse)
             self.browseBut.config(image = self.opengif)
         except:
             self.browseBut = ttk.Button(self.Container,
                                    text=" ... ",
-                                   command=self.browse)
-        self.browseBut.pack(side='right', anchor='ne', padx=5, pady=5)
+                                   command=self._browse)
+        self.browseBut.pack(side='right', anchor='ne',
+                            padx=5, pady=5)
     
     def set_filetypes(self, default_ext, types_tupelist):
         self.FILEOPENOPTIONS = None
         self.FILEOPENOPTIONS = dict(defaultextension=default_ext,
                                     filetypes=types_tupelist)
         
-    def browse(self):
-        """ Opens file browser and places selected file in entry """
-        browse_file = tkFileDialog.askopenfilenames(parent=self.root,
-                                                        **self.FILEOPENOPTIONS)
+    def _browse(self):
+        """Opens file browser and places selected file in entry."""
+        browse_file = tkFileDialog.askopenfilenames(
+                                            parent=self.root,
+                                            **self.FILEOPENOPTIONS)
 
         # Place in entry box
         #parent_dir = path.dirname(browse_file)
@@ -64,7 +66,48 @@ class BrowseEntry(ttk.LabelFrame):
         self.fileVar.set(browse_file)
         #return browse_file, parent_dir
         
-    def get_fileVar(self):
+    def get_value(self):
+        return self.fileVar.get()
+
+
+
+class BrowseDir(ttk.LabelFrame):
+    """Select a directory and add it to an entrybox."""
+    def __init__(self, root):
+        self.root = root
+        # Input Frame
+        self.Container = ttk.LabelFrame(root,
+                                        text=" Select Directory ")
+        self.Container.pack(side='top', anchor='n', fill='x',
+                            expand='yes', padx=5, pady=5)
+
+        # Browse Entry
+        self.fileVar = tk.StringVar()
+        self.fileEntry = ttk.Entry(self.Container, width=30)
+        self.fileEntry.pack(side='left', anchor='nw', fill='x',
+                            expand='yes', padx=5, pady=5)
+
+        # Browse Button
+        try:
+            gif = r"C:\Workspace\PROJECTS\Tkit\Tkit\Icons\openfolder.gif"
+            self.opengif = tk.PhotoImage(file=gif)
+            self.browseBut = ttk.Button(self.Container,
+                                   command=self._browse)
+            self.browseBut.config(image = self.opengif)
+        except:
+            self.browseBut = ttk.Button(self.Container,
+                                   text=" ... ",
+                                   command=self._browse)
+        self.browseBut.pack(side='right', anchor='ne', padx=5, pady=5)
+
+    def _browse(self):
+        """Opens file browser and places selected dir in entry."""
+        browse_file = tkFileDialog.askdirectory(parent=self.root)
+        self.fileEntry.delete(0, 'end')
+        self.fileEntry.insert(0, browse_file)
+        self.fileVar.set(browse_file)
+
+    def get_value(self):
         return self.fileVar.get()
 
 # Sources:
@@ -77,14 +120,16 @@ class BrowseEntry(ttk.LabelFrame):
 # Test Application code:
 
 class _App(tk.Frame):
-    """ Testing GUI """
+    """Testing GUI"""
     def __init__(self, root):
         tk.Frame.__init__(self, root)
-        self.browse_ent = BrowseEntry(self)
+        self.browse_ent = BrowseFile(self)
         
         self.browse_ent.set_filetypes('.py',
                                       [('Python', '.pyw'),
                                        ('Python', '.py')])
+
+        self.browse_dir = BrowseDir(self)
 
 
 if __name__ == '__main__':

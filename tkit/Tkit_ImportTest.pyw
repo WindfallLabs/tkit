@@ -1,8 +1,6 @@
 """ Tkit Testing App """
 
 # Imports
-import threading
-import Queue
 import Tkinter as tk
 import ttk
 
@@ -34,12 +32,19 @@ class App(tk.Frame):
         """ Widgets """
         
         # Browse Field
-        self.browse_ent = BrowseEntry(self)
+        self.browse_ent = BrowseFile(self)
 
+        self.browse_dir = BrowseDir(self)
+
+        # Print selected browse fields
+        self.print_but = ttk.Button(self, text=' Test print ',
+                                    command=self.print_dir)
+        self.print_but.pack()
+        
+        # Status Bar
         self.Ok_but = ttk.Button(self, text=' Test Status ',
                                  command=self.call_main)
         
-        # Status Bar
         self.statusbar = Statusbar(self, self.Ok_but)
 
         # Ok button
@@ -68,9 +73,13 @@ class App(tk.Frame):
 
 
     """ Main Method(s) """
+
+    def print_dir(self):
+        print self.browse_dir.get_value()
+        print self.browse_ent.get_value()
         
     def call_main(self, event=None):
-        """ Threadifies Main() and passes parameters to it """
+        """Threadifies Main() and passes parameters to it."""
         self.main_thread = apptools.ThreadedClient("Main",
                                     lambda: self.Main(
                                         self.radiobox.get_selected()
@@ -78,7 +87,7 @@ class App(tk.Frame):
         self.main_thread.start()
 
     def Main(self, t):
-        """ emulates process """
+        """Emulates process."""
         self.statusbar.start()
         sleep(t)
         self.statusbar.stop()

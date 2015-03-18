@@ -16,7 +16,7 @@ import apptools
 
 
 class Radiobox(ttk.LabelFrame):
-    """ Allows user to easily place radio buttions into a labelframe """
+    """Allows user to easily place radio buttions into a labelframe."""
     def __init__(self, root, var_type, labelframe_text, box_side,
                  box_anchor, box_fill, box_expand, r_alignment='horizontal'):
         # Container
@@ -38,7 +38,7 @@ class Radiobox(ttk.LabelFrame):
         self.r_row = 0
         
     def add_button(self, radio_name, in_value):
-        """ Adds a new button to the radiobox """
+        """Adds a new button to the radiobox."""
         rbutton = ttk.Radiobutton(self.Container, text=radio_name,
                                   value=in_value, variable=self.radio_value)
         rbutton.grid(column = self.r_column, row = self.r_row)
@@ -48,11 +48,11 @@ class Radiobox(ttk.LabelFrame):
             self.r_row += 1
                 
     def get_selected(self):
-        """ Returns the value of the selected radiobutton """
+        """Returns the value of the selected radiobutton."""
         return self.radio_value.get()
         
     def _print_selected(self):
-        """ For Testing """
+        """For Testing"""
         print self.radio_value.get()
 
 #===================================================================
@@ -61,7 +61,7 @@ class Radiobox(ttk.LabelFrame):
 # Test Application code:
 
 class _App(tk.Frame):
-    """ Testing GUI """
+    """Testing GUI"""
     def __init__(self, root):
         """ Parent window properties """
         tk.Frame.__init__(self, root)

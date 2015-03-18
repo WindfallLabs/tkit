@@ -16,7 +16,7 @@ import apptools
 
 # Consider "ListTree" as name
 class FileTree(ttk.LabelFrame):
-    """ Allows user to easily manipulate columns of data """
+    """Allows user to easily manipulate columns of data."""
     def __init__(self, root):
         self.root = root
         
@@ -61,7 +61,7 @@ class FileTree(ttk.LabelFrame):
                                     filetypes=types_tupelist)
         
     def add_file(self):
-        """ Opens file browser and places selected file(s) in tree """
+        """Opens file browser and places selected file(s) in tree."""
         new_file = tkFileDialog.askopenfilenames(parent=self.root,
                                                  **self.FILEOPENOPTIONS)
         if " " in new_file:
@@ -78,7 +78,7 @@ class FileTree(ttk.LabelFrame):
         
         
     def rm_file(self):
-        """ Removes selected file from tree """
+        """Removes selected file from tree."""
         current_val = self.tree.item(self.tree.focus())['values'][0]
         self.tree.delete(self.tree.focus())
         self.fileList.remove(current_val)
@@ -87,7 +87,7 @@ class FileTree(ttk.LabelFrame):
             self.warning.pack_forget()
             
     def get_list(self):
-        """ Returns selected list of selected files """
+        """Returns selected list of selected files."""
         self.fileList = list(set(self.fileList))
         print self.fileList
         return self.fileList
@@ -100,7 +100,7 @@ class FileTree(ttk.LabelFrame):
 # Test Application code:
 
 class _App(tk.Frame):
-    """ Testing GUI """
+    """Testing GUI"""
     def __init__(self, root):
         tk.Frame.__init__(self, root)
         self.filetree = FileTree(self)

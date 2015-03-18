@@ -18,13 +18,13 @@ def thread_GUI(App_class):
 
 class ThreadedClient(threading.Thread):
     def __init__(self, name, process):
-        """ Subclass of thread allows for easier thread creation """
+        """Subclass of thread allows for easier thread creation."""
         threading.Thread.__init__(self)
         self.name = name
         self.process = process
         
     def run(self):
-        """ Runs at thread start """
+        """Runs at thread start."""
         logging.debug("{0} thread started".format(self.name))
         self.process()
         logging.debug("{0} thread terminated".format(self.name))
