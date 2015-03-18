@@ -6,3 +6,16 @@ new edits in this branch are on the browse_entry module
 	renamed BrowseEntry class to BrowseFile
 	updated all docstrings to """Docstring message.""";
 		section labels were left as the """ Section name """ format
+
+moving forward:
+	rename tkit to wftkit
+	change the __init__.py to import widget classes from individual modules
+		e.g.:
+
+import wftkit
+
+app class stuff
+...
+self.browse_file = wftkit.BrowseFile(self)
+...
+self.radiobox = wftkit.Radiobox(self)
