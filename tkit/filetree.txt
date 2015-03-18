@@ -1,7 +1,7 @@
 Branch: filetree
 filetree edits were made, committed and merged
 
-new edits in this branch (uncommitted) are on the browse_entry module
+new edits in this branch are on the browse_entry module
 	added BrowseDir class
 	renamed BrowseEntry class to BrowseFile
 	updated all docstrings to """Docstring message.""";
