@@ -9,7 +9,7 @@ new edits in this branch are on the browse_entry module
 
 moving forward:
 	rename tkit to wftkit
-	change the __init__.py to import widget classes from individual modules
+	change the __init__.py to import widget classes from individual modules --- DONE
 		e.g.:
 
 import wftkit
