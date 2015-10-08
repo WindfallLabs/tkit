@@ -1,9 +1,29 @@
-""" Provides reusable app dev code """
+# -*- coding: utf-8 -*-
+"""tktools.py
+
+This module provides consolidated and reusable GUI app development code for the
+Tkinter Kit Framework (tkit).
+"""
+
+__author__ = "Garin Wally"
+
 
 # Imports
-import Tkinter as tk
+try:
+    import tkinter as tk
+except ImportError:
+    import Tkinter as tk
 import threading
 import logging
+'''
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+log = logging.FileHandler("GUI_log.log")
+log.setLevel(logging.DEBUG)
+logger.addHandler(log)
+
+logger.error("Error: not really, starting script")
+'''
 
 
 def build_GUI(App_class):
