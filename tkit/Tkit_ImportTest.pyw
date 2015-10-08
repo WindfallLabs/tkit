@@ -33,7 +33,7 @@ class App(tk.Frame):
         """ Widgets """
 
         # Menubar
-        self.config(menu=Menubar(self))
+        self.menu = Menubar(self)
         
         # Browse Field
         self.browse_ent = BrowseFile(self)
