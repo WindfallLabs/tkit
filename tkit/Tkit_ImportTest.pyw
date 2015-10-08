@@ -10,6 +10,7 @@ from browse_entry import *
 from file_tree import *
 from radiobox import *
 from statusbar import *
+from menubar import *
 
 
 # Testing GUI
@@ -30,6 +31,9 @@ class App(tk.Frame):
         self.root.deiconify()
 
         """ Widgets """
+
+        # Menubar
+        self.config(menu=Menubar(self))
         
         # Browse Field
         self.browse_ent = BrowseFile(self)
