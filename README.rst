@@ -7,7 +7,9 @@ easy-to-use objects for stand alone tool creation. Specifically, this package is
 designed for wrapping GIS analysis scripts with UI so that code-phobic GIS analysts
 do not have to fret over commandline arguments.
 
-#License
+====
+License:
+====
 The MIT License (MIT)
 
 Copyright (c) 2014 Garin Wally
