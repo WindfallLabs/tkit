@@ -27,7 +27,7 @@ import colorama
 _PROC_LEN = 0
 
 
-def fprint(s, end="\n", wait_for_enter=False):
+def fprint(s, end="\n", flush=True, wait_for_enter=False):
     """Force prints a string. Use "" for processing messages.
     
         Args:
@@ -45,7 +45,8 @@ def fprint(s, end="\n", wait_for_enter=False):
     colorama.init()
     # Print string; flush forces the print to occur
     print(s, end=end)
-    sys.stdout.flush()
+    if flush:
+        sys.stdout.flush()
     # Save the process message length for use in status_msg()
     if end == "":
         global _PROC_LEN
