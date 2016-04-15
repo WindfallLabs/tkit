@@ -233,6 +233,30 @@ class _StatusMsgs(object):
 
 status = _StatusMsgs()
 
+
+# =============================================================================
+count = 0
+
+def percent(n, t):
+    return "{:.0%}".format(n/float(t))
+
+def pct_bar(n, proc):
+    """Percentage Bar."""
+    n += 1
+    #proc = 10 + (proc%10)
+    pct = percent(n, proc)
+    done = "#"*n
+    bar = "."*(proc-n)#10 + (proc%10))
+    return "{} [{}{}]".format(pct, done, bar)
+
+processes = 31
+for x in xrange(processes):
+    time.sleep(1)
+    count += 1
+    print(pct_bar(count, processes), end="\r")
+
+# =============================================================================
+
 # TESTS
 if __name__ == '__main__':
     # STATUS TESTS
