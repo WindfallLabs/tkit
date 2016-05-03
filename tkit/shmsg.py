@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-shmsg - Shell Messages
+shmsg.py - Shell Messages
 Garin Wally; March 2015, April 2016
 
-This module provides users with a toolkit of functions for making console-based
-tools look better.
+This module provides users with a toolkit of functions for making cli-based
+script tools look better.
 """
 
 from __future__ import print_function
 import sys
 import time
 import traceback
-import urllib
-import urllib2
 
 import colorama
 from termcolor import cprint, COLORS, colored
@@ -20,15 +18,13 @@ from termcolor import cprint, COLORS, colored
 
 colorama.init()
 
-BOLD = (None, ["bold"])
-
 
 def show_colors():
     """Displays available text colors."""
     all_colors = " ".join([colored(name, name) for name in COLORS.keys()])
     cprint(all_colors)
 
-
+'''
 def fprint(string, end="\n", flush=True, wait_for_enter=False):
     """Force print. Use end="" for processing messages.
 
@@ -53,50 +49,7 @@ def fprint(string, end="\n", flush=True, wait_for_enter=False):
     return
 
 
-def send_text(cell_number, message):
-    """Sends a text message via textbelt.com"""
-    url = 'http://textbelt.com/text'
-    fail_msg = "send_text failed: "
-
-    # Non-string phone number error
-    if not isinstance(cell_number, str) or not cell_number.isdigit():
-        raise AttributeError(
-            fail_msg + "Input cell_number must be a numeric string")
-
-    # Non-string/list message error
-    if isinstance(message, list):
-        text_content = '\n'.join([i for i in message])
-    elif isinstance(message, str):
-        text_content = message
-    else:
-        raise AttributeError(
-            fail_msg + "Input message must be a string or list")
-
-    # Prepares communication with textbelt.com
-    values = {'message': text_content, 'number': cell_number}
-    data = urllib.urlencode(values)
-    req = urllib2.Request(url, data)
-
-    # Attempts to send request
-    try:
-        urllib2.urlopen(req)
-
-    # Catches and relabels send errors
-    except:
-        try:
-            # Check if textbelt.com site is down
-            urllib2.urlopen('http://www.google.com', timeout=2)
-            error_msg = "Possible problem with site: " + url
-            raise urllib2.URLError(fail_msg + error_msg)
-
-        except urllib2.URLError:
-            # Assume internet connection failure
-            error_msg = "No Internet connection"
-            raise urllib2.URLError(fail_msg + error_msg)
-    return
-
-
-def get_error(red=True):
+def get_error(red=True, wait=True):
     """Simple, logging-friendly traceback message.
     Returns error message and line number.
 
@@ -113,19 +66,47 @@ def get_error(red=True):
         msg = "{0}; Line: {1}\n".format(tb_lines[-1],
                                         str(exc_traceback.tb_lineno))
         if red:
-            return colored(msg, "red", *BOLD)
+            return colored(msg, "red", None, ["bold"])
         return msg
     return ""
+'''
 
 
-class _StatusMsgs(object):
+class GetError(object):
+    """Considerate traceback: prints errors in red and waits for keypress by
+    default."""
+    def __init__(self, red=True, wait=False):
+        self.msg = self.get_msg()
+        if self.msg:
+            print(self.__repr__())
+        if wait:
+            raw_input("Press <Enter> to continue")
+
+    def get_msg(self):
+        exc_traceback = sys.exc_info()[2]
+        if exc_traceback:
+            tb_lines = traceback.format_exc().splitlines()
+            msg = "{0}; Line: {1}".format(tb_lines[-1],
+                                          str(exc_traceback.tb_lineno))
+            return msg
+        else:
+            return None
+
+    def __repr__(self):
+        if self.msg:
+            return colored(self.msg, "red", None, ["bold"])
+        return "None"
+
+
+class StatusLine(object):
     """Status messages and colors."""
     def __init__(self):
         """Set defaults."""
         self._spacing = 40
         self._proc_len = 0
-        self._success_msg = colored("[DONE]", "green", *BOLD)
-        self._fail_msg = colored("[FAILED]", "red", *BOLD)
+        self._bold = (None, ["bold"])
+        self._success_msg = colored("[DONE]", "green", *self._bold)
+        self._fail_msg = colored("[FAILED]", "red", *self._bold)
 
     def set_spacing(self, spacing=40):
         """Sets spacing of status message."""
@@ -133,12 +114,12 @@ class _StatusMsgs(object):
 
     def set_success(self, success_msg="[DONE]", color="green"):
         """Change the session's default success message and color."""
-        msg = colored(success_msg, color, *BOLD)
+        msg = colored(success_msg, color, *self._bold)
         self._success_msg = msg
 
     def set_fail(self, fail_msg="[FAILED]", color="red"):
         """Change the session's default fail message and color."""
-        msg = colored(fail_msg, color, *BOLD)
+        msg = colored(fail_msg, color, *self._bold)
         self._fail_msg = msg
 
     def _test(self):
@@ -150,6 +131,16 @@ class _StatusMsgs(object):
         self.write("Failure")
         time.sleep(1)
         self.failure()
+
+    def bold_off(self):
+        """Turns bold/bright colored text off."""
+        if self._bold[1]:
+            self._bold = (None, None)
+
+    def bold_on(self):
+        """Turns bold/bright colored text on. Default: on."""
+        if not self.bold[1]:
+            self._bold = (None, ["bold"])
 
     def _place_elipses(self):
         """Counts and prints elipses."""
@@ -174,13 +165,15 @@ class _StatusMsgs(object):
         self._place_elipses()
         cprint(self._fail_msg)
 
-    def custom(self, custom_msg, color='white'):
+    def custom(self, custom_msg, color='white', wait=False):
         """Print a custom message."""
         self._place_elipses()
-        cprint(custom_msg, color, *BOLD)
+        cprint(custom_msg, color, *self._bold)
+        if wait:
+            raw_input("Press <Enter> to continue.")
 
     def write(self, string):
-        """Create a processing message.
+        """Write a processing message.
 
             Args:
                 string (str): string to be printed (e.g. "Processing...")
@@ -199,35 +192,33 @@ class _StatusMsgs(object):
         return
 
 
-MSG = _StatusMsgs()
-
-
 # TESTS
 if __name__ == '__main__':
+    print("Testing status messages...\n")
     # STATUS TESTS
     # Success
-    MSG.write("Success...")
+    status = StatusLine()
+    status.write("Success...")
     time.sleep(2)
-    MSG.success()
+    status.success()
     # Fail
-    MSG.write("Fail...")
+    status.write("Fail...")
     time.sleep(2)
-    MSG.failure()
+    status.failure()
     # Custom
-    MSG.write("Custom...")
+    status.write("Custom...")
     time.sleep(2)
-    MSG.custom("[COMPLETE]", 'cyan')
+    status.custom("[COMPLETE]", 'cyan')
     # Change default fail
-    MSG.set_fail("OMG!")
-    MSG.write("New fail default...")
+    status.bold_off()
+    status.set_fail("Unbolded Red")
+    status.write("set_fail...")
     time.sleep(2)
-    MSG.failure()
+    status.failure()
 
     # TEST ERROR
-    fprint("Intentional Error:\t", "")
+    print("Intentional Error:")
     try:
         raise Exception("Test Error")
     except Exception:
-        cprint(get_error())
-
-    fprint("Testing Complete", wait_for_enter=True)
+        GetError(wait=True)
