@@ -15,6 +15,7 @@ import traceback
 import colorama
 from termcolor import cprint, COLORS, colored
 
+__all__ = ["show_colors", "GetError", "StatusLine"]
 
 colorama.init()
 
