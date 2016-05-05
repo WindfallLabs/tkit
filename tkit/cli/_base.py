@@ -15,7 +15,7 @@ import traceback
 import colorama
 from termcolor import cprint, COLORS, colored
 
-__all__ = ["show_colors", "GetError", "StatusLine"]
+__all__ = ["show_colors", "wait", "GetError", "StatusLine"]
 
 colorama.init()
 
@@ -25,78 +25,43 @@ def show_colors():
     all_colors = " ".join([colored(name, name) for name in COLORS.keys()])
     cprint(all_colors)
 
-'''
-def fprint(string, end="\n", flush=True, wait_for_enter=False):
-    """Force print. Use end="" for processing messages.
 
-        Args:
-            string (str): string to be printed
-            end (str): end-of-string string; like 'print' uses "\n" by default
-            flush (bool): use sys.stdout.flush() to force the print
-            wait_for_enter (bool): hangs until <Enter> keypress after print;
-                useful for error messages and in combination with sys.exit().
-
-        Usage:
-            >>> fprint("Causing error...", "", True)
-            Causing error...
-            Press <Enter> to exit.
-    """
-    # Print string; flush forces the print to occur
-    print(string, end=end)
-    if flush:
-        sys.stdout.flush()
-    if wait_for_enter:
-        raw_input("Press <Enter> to exit.")
+def wait():
+    """Python-version agnostic wait-for-input function."""
+    if sys.version.split()[0].startswith("2"):
+        input = raw_input
+    input("Press <Enter> to continue")
     return
 
 
-def get_error(red=True, wait=True):
-    """Simple, logging-friendly traceback message.
-    Returns error message and line number.
-
-        Usage:
-            >>> try:
-            ...     raise Exception("Intentional Error")
-            ... except:
-            ...     fprint(get_error()))
-            Exception: Intentional Error; Line: 2
-    """
-    exc_traceback = sys.exc_info()[2]
-    if exc_traceback:
-        tb_lines = traceback.format_exc().splitlines()
-        msg = "{0}; Line: {1}\n".format(tb_lines[-1],
-                                        str(exc_traceback.tb_lineno))
-        if red:
-            return colored(msg, "red", None, ["bold"])
-        return msg
-    return ""
-'''
-
-
 class GetError(object):
-    """Considerate traceback: prints errors in red and waits for keypress by
-    default."""
-    def __init__(self, red=True, wait=False):
-        self.msg = self.get_msg()
-        if self.msg:
-            print(self.__repr__())
-        if wait:
-            raw_input("Press <Enter> to continue")
+    """Emulation of system traceback, includes line number."""
+    def __init__(self, red=True, key_wait=False):
+        self.err = None
+        self.msg = None
+        self.line = None
+        self.red = red
+        self.full_msg = self.get_msg()
+        if key_wait:
+            wait()
 
     def get_msg(self):
-        exc_traceback = sys.exc_info()[2]
+        exc_traceback = exc_traceback = sys.exc_info()[2]
         if exc_traceback:
             tb_lines = traceback.format_exc().splitlines()
-            msg = "{0}; Line: {1}".format(tb_lines[-1],
-                                          str(exc_traceback.tb_lineno))
-            return msg
-        else:
-            return None
+            self.err = tb_lines[-1].split()[0].strip(":")
+            self.msg = " ".join(tb_lines[-1].split()[1:])
+            self.line = "Line {}".format(exc_traceback.tb_lineno)
+            return "{}: {} ({})".format(self.err, self.msg, self.line)
+        return None
 
     def __repr__(self):
-        if self.msg:
-            return colored(self.msg, "red", None, ["bold"])
-        return "None"
+        if self.full_msg:
+            if self.red:
+                return colored(self.full_msg, "red", None, ["bold"])
+            return self.full_msg
+        else:
+            return "No Error"
 
 
 class StatusLine(object):
@@ -133,16 +98,6 @@ class StatusLine(object):
         time.sleep(1)
         self.failure()
 
-    def bold_off(self):
-        """Turns bold/bright colored text off."""
-        if self.text_attrs[1]:
-            self.text_attrs = (None, None)
-
-    def bold_on(self):
-        """Turns bold/bright colored text on. Default: on."""
-        if not self.text_attrs[1]:
-            self.text_attrs = (None, ["bold"])
-
     def _place_elipses(self):
         """Counts and prints elipses."""
         # If no message precedes the status, don't use elipses
@@ -173,11 +128,19 @@ class StatusLine(object):
         if wait:
             raw_input("Press <Enter> to continue.")
 
-    def nix(self, status, status_color, message, attrs=(None, ["bold"])):
+    def nix(self, message, status=True, color="white", attrs=None):
         """Status messages that emulate Linux/Unix startup messages."""
-        print("{} {}".format(colored(status, status_color, *attrs),
-                             message))
+        if status is True:
+            status_msg = self._success_msg
+        elif status is False:
+            status_msg = self._fail_msg
+        else:
+            if attrs:
+                status_msg = colored(status, color, *attrs)
+            else:
+                status_msg = colored(status, color, *self.text_attrs)
 
+        print("{} {}".format(status_msg, message))
 
     def write(self, string):
         """Write a processing message.
@@ -203,19 +166,10 @@ class StatusLine(object):
 if __name__ == '__main__':
     print("Testing status messages...\n")
     # STATUS TESTS
-    # Success
+    # Success / fail
     status = StatusLine()
-    status.write("Success...")
-    time.sleep(2)
-    status.success()
-    # Fail
-    status.write("Fail...")
-    time.sleep(2)
-    status.failure()
-    # Custom
-    status.write("Custom...")
-    time.sleep(2)
-    status.custom("[COMPLETE]", 'cyan')
+    status._test()
+
     # Change default fail
     status.bold_off()
     status.set_fail("Unbolded Red")
@@ -223,8 +177,16 @@ if __name__ == '__main__':
     time.sleep(2)
     status.failure()
 
+    # Custom
+    status.write("Custom...")
+    time.sleep(2)
+    status.custom("[COMPLETE]", 'cyan')
+
+    # Nix
+    status.nix(" [ OK ] ", "green", "*nix message printed.")
+
     # TEST ERROR
-    print("Intentional Error:")
+    print("\nIntentional Error:")
     try:
         raise Exception("Test Error")
     except Exception:
