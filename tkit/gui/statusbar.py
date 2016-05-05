@@ -1,6 +1,6 @@
+# -*- coding: utf-8 -*-
 """ Statusbar containing status and progress bar """
 # Dev Notes:
-__status__ = 'alpha'
 #   Known bugs:
 #       Progressbar should get removed once status == 'Done'
 #       Until the above is solved, a reset button is used
@@ -38,16 +38,13 @@ class Statusbar(tk.Frame):
 
         # Statusbar container
         self.bar = ttk.Frame(root, relief='raised')
-        
-        self.bar.pack(side='bottom', anchor='s',
-                            fill='x', expand='yes',
-                            padx=0, pady=0)
+
+        self.bar.pack(side='bottom', anchor='s', fill='x',
+                      expand='yes', padx=0, pady=0)
 
         # Status labels
-        self.status_label = ttk.Label(self.bar,
-                                      text=self.labels[0])
-        self.status_label.pack(side='left', anchor='sw',
-                               padx=2, pady=5)
+        self.status_label = ttk.Label(self.bar, text=self.labels[0])
+        self.status_label.pack(side='left', anchor='sw', padx=2, pady=5)
 
         # Progress bar
         self.progressbar = ttk.Progressbar(self.bar, orient='horizontal',
@@ -77,7 +74,7 @@ class Statusbar(tk.Frame):
         self.status_label.config(text=self.labels[self.cur_status])
         if self.cur_status == 1:
             self.progressbar.pack(side='right', expand='y',
-                               fill='x', padx=5, pady=2)
+                                  fill='x', padx=5, pady=2)
         elif self.cur_status == 2:
             self.reset_but.pack(side='right')
             #self.progressbar.pack_forget() # Issue here
@@ -100,12 +97,13 @@ class Statusbar(tk.Frame):
         """Stops the bar at the event flag."""
         self.wait_event.set()
         self.update_bar()
-        
 
-#===================================================================
+
+# =============================================================================
 # End of statusbar Module
-#===================================================================
+# =============================================================================
 # Test Application code:
+
 
 class _App(tk.Frame):
     """Testing GUI"""
@@ -134,23 +132,21 @@ class _App(tk.Frame):
 
         # Allows user to press "Enter" instead of clicking the OK button
         self.root.bind('<Return>', self.call_main)
-        
+
         # Allows user to press "Escape" instead of clicking the Close button
         self.root.bind('<Escape>', self.close)
-
 
     """ Window Methods """
 
     def close(self, event=None):
         self.root.destroy()
 
-
     """ Main Method(s) """
 
     def call_main(self, event=None):
         """Threadifies Main() and passes parameters to it."""
-        self.main_thread = apptools.ThreadedClient("Main",
-                                          lambda: self.Main(self.Main_val))
+        self.main_thread = apptools.ThreadedClient(
+            "Main", lambda: self.Main(self.Main_val))
         self.main_thread.start()
 
     def Main(self, t):
@@ -159,9 +155,8 @@ class _App(tk.Frame):
         self.statusbar.start()
         sleep(t)
         logging.debug('Processing Complete')
-        self.statusbar.stop() # Should also hide/pack_forget the prog bar
-        
+        self.statusbar.stop()  # Should also hide/pack_forget the prog bar
+
 
 if __name__ == '__main__':
     apptools.thread_GUI(_App)
-    

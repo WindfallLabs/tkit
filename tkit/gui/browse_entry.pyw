@@ -1,14 +1,10 @@
+# -*- coding: utf-8 -*-
 """ A file browser-entry box """
-# Dev Notes:
-__status__ = 'alpha'
-#   Implement copy/paste functionality -- import it from elsewhere
-#
 
 # Imports
 import Tkinter as tk
 import ttk
 import tkFileDialog
-from os import path, getcwd
 
 import apptools
 
@@ -24,40 +20,39 @@ class BrowseFile(ttk.LabelFrame):
 
         # Default filetypes
         self.FILEOPENOPTIONS = dict(defaultextension='*.*',
-                  filetypes=[('All files','*.*')])
+                                    filetypes=[('All files', '*.*')])
 
         # Browse Entry
         self.fileVar = tk.StringVar()
         self.fileEntry = ttk.Entry(self.Container, width=30)
         self.fileEntry.pack(side='left', anchor='nw', fill='x',
                             expand='yes', padx=5, pady=5)
-        
-        # Copy/paste
-        
+
+        # TODO: Copy/paste
+
         # Browse Button
         try:
             gif = r"C:\Workspace\PROJECTS\Tkit\Tkit\Icons\openfolder.gif"
             self.opengif = tk.PhotoImage(file=gif)
             self.browseBut = ttk.Button(self.Container,
-                                   command=self._browse)
-            self.browseBut.config(image = self.opengif)
+                                        command=self._browse)
+            self.browseBut.config(image=self.opengif)
         except:
             self.browseBut = ttk.Button(self.Container,
-                                   text=" ... ",
-                                   command=self._browse)
+                                        text=" ... ",
+                                        command=self._browse)
         self.browseBut.pack(side='right', anchor='ne',
                             padx=5, pady=5)
-    
+
     def set_filetypes(self, default_ext, types_tupelist):
         self.FILEOPENOPTIONS = None
         self.FILEOPENOPTIONS = dict(defaultextension=default_ext,
                                     filetypes=types_tupelist)
-        
+
     def _browse(self):
         """Opens file browser and places selected file in entry."""
         browse_file = tkFileDialog.askopenfilenames(
-                                            parent=self.root,
-                                            **self.FILEOPENOPTIONS)
+            parent=self.root, **self.FILEOPENOPTIONS)
 
         # Place in entry box
         #parent_dir = path.dirname(browse_file)
@@ -65,10 +60,9 @@ class BrowseFile(ttk.LabelFrame):
         self.fileEntry.insert(0, browse_file)
         self.fileVar.set(browse_file)
         #return browse_file, parent_dir
-        
+
     def get_value(self):
         return self.fileVar.get()
-
 
 
 class BrowseDir(ttk.LabelFrame):
@@ -91,13 +85,11 @@ class BrowseDir(ttk.LabelFrame):
         try:
             gif = r"C:\Workspace\PROJECTS\Tkit\Tkit\Icons\openfolder.gif"
             self.opengif = tk.PhotoImage(file=gif)
-            self.browseBut = ttk.Button(self.Container,
-                                   command=self._browse)
-            self.browseBut.config(image = self.opengif)
+            self.browseBut = ttk.Button(self.Container, command=self._browse)
+            self.browseBut.config(image=self.opengif)
         except:
-            self.browseBut = ttk.Button(self.Container,
-                                   text=" ... ",
-                                   command=self._browse)
+            self.browseBut = ttk.Button(self.Container, text=" ... ",
+                                        command=self._browse)
         self.browseBut.pack(side='right', anchor='ne', padx=5, pady=5)
 
     def _browse(self):
@@ -114,17 +106,18 @@ class BrowseDir(ttk.LabelFrame):
 # https://stackoverflow.com/questions/4297949/image-on-a-button
 # https://stackoverflow.com/questions/11352278/default-file-type-in-tkfiledialogs-askopenfilename-method
 
-#===================================================================
+# =============================================================================
 # End of browse_entry Module
-#===================================================================
+# =============================================================================
 # Test Application code:
+
 
 class _App(tk.Frame):
     """Testing GUI"""
     def __init__(self, root):
         tk.Frame.__init__(self, root)
         self.browse_ent = BrowseFile(self)
-        
+
         self.browse_ent.set_filetypes('.py',
                                       [('Python', '.pyw'),
                                        ('Python', '.py')])
