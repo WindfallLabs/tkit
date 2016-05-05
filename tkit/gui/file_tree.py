@@ -64,15 +64,11 @@ class FileTree(ttk.LabelFrame):
         """Opens file browser and places selected file(s) in tree."""
         new_file = tkFileDialog.askopenfilenames(parent=self.root,
                                                  **self.FILEOPENOPTIONS)
-        if " " in new_file:
-            add_files = new_file.split(" ")
-            for f in add_files:
-                self.fileList.append(f)
-                self.tree.insert("", 'end', values=f)
-        else:
-            self.fileList.append(new_file)
-            self.tree.insert("", 'end', values=new_file)
-        # Displays duplicate warning
+        print(new_file)
+        for f in new_file:
+            self.fileList.append(f)
+            self.tree.insert("", 'end', values=f)
+
         if len(self.fileList) != len(set(self.fileList)):
             self.warning.pack(side='bottom')
         
