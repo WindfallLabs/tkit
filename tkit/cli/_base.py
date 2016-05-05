@@ -173,6 +173,12 @@ class StatusLine(object):
         if wait:
             raw_input("Press <Enter> to continue.")
 
+    def nix(self, status, status_color, message, attrs=(None, ["bold"])):
+        """Status messages that emulate Linux/Unix startup messages."""
+        print("{} {}".format(colored(status, status_color, *attrs),
+                             message))
+
+
     def write(self, string):
         """Write a processing message.
 
