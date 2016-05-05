@@ -105,9 +105,9 @@ class StatusLine(object):
         """Set defaults."""
         self._spacing = 40
         self._proc_len = 0
-        self._bold = (None, ["bold"])
-        self._success_msg = colored("[DONE]", "green", *self._bold)
-        self._fail_msg = colored("[FAILED]", "red", *self._bold)
+        self.text_attrs = (None, ["bold"])
+        self._success_msg = colored("[DONE]", "green", *self.text_attrs)
+        self._fail_msg = colored("[FAILED]", "red", *self.text_attrs)
 
     def set_spacing(self, spacing=40):
         """Sets spacing of status message."""
@@ -115,12 +115,12 @@ class StatusLine(object):
 
     def set_success(self, success_msg="[DONE]", color="green"):
         """Change the session's default success message and color."""
-        msg = colored(success_msg, color, *self._bold)
+        msg = colored(success_msg, color, *self.text_attrs)
         self._success_msg = msg
 
     def set_fail(self, fail_msg="[FAILED]", color="red"):
         """Change the session's default fail message and color."""
-        msg = colored(fail_msg, color, *self._bold)
+        msg = colored(fail_msg, color, *self.text_attrs)
         self._fail_msg = msg
 
     def _test(self):
@@ -135,13 +135,13 @@ class StatusLine(object):
 
     def bold_off(self):
         """Turns bold/bright colored text off."""
-        if self._bold[1]:
-            self._bold = (None, None)
+        if self.text_attrs[1]:
+            self.text_attrs = (None, None)
 
     def bold_on(self):
         """Turns bold/bright colored text on. Default: on."""
-        if not self.bold[1]:
-            self._bold = (None, ["bold"])
+        if not self.text_attrs[1]:
+            self.text_attrs = (None, ["bold"])
 
     def _place_elipses(self):
         """Counts and prints elipses."""
@@ -169,7 +169,7 @@ class StatusLine(object):
     def custom(self, custom_msg, color='white', wait=False):
         """Print a custom message."""
         self._place_elipses()
-        cprint(custom_msg, color, *self._bold)
+        cprint(custom_msg, color, *self.text_attrs)
         if wait:
             raw_input("Press <Enter> to continue.")
 
