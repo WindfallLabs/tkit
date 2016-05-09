@@ -66,13 +66,17 @@ class GetError(object):
 
 class StatusLine(object):
     """Status messages and colors."""
-    def __init__(self):
+    def __init__(self, disable_colors=False):
         """Set defaults."""
         self._spacing = 40
-        self._proc_len = 0
+        self._last_len = 0
         self.text_attrs = (None, ["bold"])
-        self._success_msg = colored("[DONE]", "green", *self.text_attrs)
-        self._fail_msg = colored("[FAILED]", "red", *self.text_attrs)
+        if disable_colors:
+            self._success_msg = "[DONE]"
+            self._fail_msg = "[FAILED]"
+        else:
+            self._success_msg = colored("[DONE]", "green", *self.text_attrs)
+            self._fail_msg = colored("[FAILED]", "red", *self.text_attrs)
 
     def set_spacing(self, spacing=40):
         """Sets spacing of status message."""
@@ -80,13 +84,19 @@ class StatusLine(object):
 
     def set_success(self, success_msg="[DONE]", color="green"):
         """Change the session's default success message and color."""
-        msg = colored(success_msg, color, *self.text_attrs)
-        self._success_msg = msg
+        if color:
+            msg = colored(success_msg, color, *self.text_attrs)
+            self._success_msg = msg
+        else:
+            self._success_msg = msg
 
     def set_fail(self, fail_msg="[FAILED]", color="red"):
         """Change the session's default fail message and color."""
-        msg = colored(fail_msg, color, *self.text_attrs)
-        self._fail_msg = msg
+        if color:
+            msg = colored(fail_msg, color, *self.text_attrs)
+            self._fail_msg = msg
+        else:
+            self._fail_msg = msg
 
     def _test(self):
         """Displays the success and fail status messages."""
@@ -101,18 +111,18 @@ class StatusLine(object):
     def _place_elipses(self):
         """Counts and prints elipses."""
         # If no message precedes the status, don't use elipses
-        if self._proc_len == 0:
-            self._proc_len = self._spacing
+        if self._last_len == 0:
+            self._last_len = self._spacing
         # Print the elipses if a processing message shares the line
-        print("".ljust(self._spacing-self._proc_len, "."), end="")
+        print("".ljust(self._spacing-self._last_len, "."), end="")
         try:
-            # The Python console in ArcMap/ArcCatalog doesn't support flush
+            # For consoles that do not support flush
             sys.stdout.flush()
         except:
             pass
 
         # Reset processing message length
-        self._proc_len = 0
+        self._last_len = 0
         return
 
     def success(self):
@@ -158,11 +168,11 @@ class StatusLine(object):
                 Press <Enter> to exit.
         """
         # Save the process message length for use in status object
-        self._proc_len = len(string)
+        self._last_len = len(string)
         # Print string; flush forces the print to occur
         print(string, end="")
         try:
-            # The Python console in ArcMap/ArcCatalog doesn't support flush
+            # For consoles that do not support flush
             sys.stdout.flush()
         except:
             pass
