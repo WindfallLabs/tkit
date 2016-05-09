@@ -68,6 +68,7 @@ class StatusLine(object):
     """Status messages and colors."""
     def __init__(self, disable_colors=False):
         """Set defaults."""
+        self._disabled_colors = disable_colors
         self._spacing = 40
         self._last_len = 0
         self.text_attrs = (None, ["bold"])
@@ -128,17 +129,20 @@ class StatusLine(object):
     def success(self):
         """Print the success message."""
         self._place_elipses()
-        cprint(self._success_msg)
+        print(self._success_msg)
 
     def failure(self):
         """Print the fail message."""
         self._place_elipses()
-        cprint(self._fail_msg)
+        print(self._fail_msg)
 
     def custom(self, custom_msg, color='white', wait=False):
         """Print a custom message."""
         self._place_elipses()
-        cprint(custom_msg, color, *self.text_attrs)
+        if color.lower() == "white" or self._disabled_colors:
+            print(custom_msg)
+        else:
+            cprint(custom_msg, color, *self.text_attrs)
         if wait:
             raw_input("Press <Enter> to continue.")
 
