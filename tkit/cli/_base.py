@@ -157,7 +157,11 @@ class StatusLine(object):
         self._proc_len = len(string)
         # Print string; flush forces the print to occur
         print(string, end="")
-        sys.stdout.flush()
+        try:
+            # The Python console in ArcMap/ArcCatalog doesn't support this
+            sys.stdout.flush()
+        except:
+            pass
 
         return
 
