@@ -105,7 +105,11 @@ class StatusLine(object):
             self._proc_len = self._spacing
         # Print the elipses if a processing message shares the line
         print("".ljust(self._spacing-self._proc_len, "."), end="")
-        sys.stdout.flush()
+        try:
+            # The Python console in ArcMap/ArcCatalog doesn't support flush
+            sys.stdout.flush()
+        except:
+            pass
 
         # Reset processing message length
         self._proc_len = 0
@@ -158,7 +162,7 @@ class StatusLine(object):
         # Print string; flush forces the print to occur
         print(string, end="")
         try:
-            # The Python console in ArcMap/ArcCatalog doesn't support this
+            # The Python console in ArcMap/ArcCatalog doesn't support flush
             sys.stdout.flush()
         except:
             pass
