@@ -9,13 +9,14 @@ script tools look better.
 
 from __future__ import print_function
 import sys
+import re
 import time
 import traceback
 
 import colorama
 from termcolor import cprint, COLORS, colored
 
-__all__ = ["show_colors", "wait", "GetError", "StatusLine"]
+__all__ = ["show_colors", "wait", "handle_ex", "GetError", "StatusLine"]
 
 colorama.init()
 
@@ -36,25 +37,33 @@ def wait():
 
 class GetError(object):
     """Emulation of system traceback, includes line number."""
-    def __init__(self, red=True, key_wait=False):
+    def __init__(self, red=True, wait=False):
         self.err = None
         self.msg = None
         self.line = None
         self.red = red
         self.full_msg = self.get_msg()
-        if key_wait:
-            wait()
+        print(self.full_msg)
+        if wait:
+            self._wait()
 
     def get_msg(self):
         exc_traceback = exc_traceback = sys.exc_info()[2]
         if exc_traceback:
             tb_lines = traceback.format_exc().splitlines()
-            self.err = tb_lines[-1].split()[0].strip(":")
+            self.err = "Uh oh" #tb_lines[-1].split()[0]
             self.msg = " ".join(tb_lines[-1].split()[1:])
             self.line = "Line {}".format(exc_traceback.tb_lineno)
             return "{}: {} ({})".format(self.err, self.msg, self.line)
         return None
 
+    def _wait(self):
+        """Python-version agnostic wait-for-input function."""
+        if sys.version.split()[0].startswith("2"):
+            input = raw_input
+        input("Press <Enter> to continue")
+        return
+    '''
     def __repr__(self):
         if self.full_msg:
             if self.red:
@@ -62,6 +71,18 @@ class GetError(object):
             return self.full_msg
         else:
             return "No Error"
+    '''
+
+
+def handle_ex(e):
+    print("\n")
+    ex = type(e).__name__
+    _n, msg, line = sys.exc_info()
+    msg = "{}: {}; Line: {}".format(ex, msg.message, line.tb_lineno)
+    print(colored(msg, "red", None, ["bold"]))
+    print("")
+    raw_input("Press <Enter> to exit.")
+    sys.exit(1)
 
 
 class StatusLine(object):
