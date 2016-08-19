@@ -8,81 +8,13 @@ script tools look better.
 """
 
 from __future__ import print_function
-import sys
-import re
-import time
-import traceback
 
 import colorama
 from termcolor import cprint, COLORS, colored
 
-__all__ = ["show_colors", "wait", "handle_ex", "GetError", "StatusLine"]
+__all__ = ["StatusLine"]
 
 colorama.init()
-
-
-def show_colors():
-    """Displays available text colors."""
-    all_colors = " ".join([colored(name, name) for name in COLORS.keys()])
-    cprint(all_colors)
-
-
-def wait():
-    """Python-version agnostic wait-for-input function."""
-    if sys.version.split()[0].startswith("2"):
-        input = raw_input
-    input("Press <Enter> to continue")
-    return
-
-
-class GetError(object):
-    """Emulation of system traceback, includes line number."""
-    def __init__(self, red=True, wait=False):
-        self.err = None
-        self.msg = None
-        self.line = None
-        self.red = red
-        self.full_msg = self.get_msg()
-        print(self.full_msg)
-        if wait:
-            self._wait()
-
-    def get_msg(self):
-        exc_traceback = exc_traceback = sys.exc_info()[2]
-        if exc_traceback:
-            tb_lines = traceback.format_exc().splitlines()
-            self.err = "Uh oh" #tb_lines[-1].split()[0]
-            self.msg = " ".join(tb_lines[-1].split()[1:])
-            self.line = "Line {}".format(exc_traceback.tb_lineno)
-            return "{}: {} ({})".format(self.err, self.msg, self.line)
-        return None
-
-    def _wait(self):
-        """Python-version agnostic wait-for-input function."""
-        if sys.version.split()[0].startswith("2"):
-            input = raw_input
-        input("Press <Enter> to continue")
-        return
-    '''
-    def __repr__(self):
-        if self.full_msg:
-            if self.red:
-                return colored(self.full_msg, "red", None, ["bold"])
-            return self.full_msg
-        else:
-            return "No Error"
-    '''
-
-
-def handle_ex(e):
-    print("\n")
-    ex = type(e).__name__
-    _n, msg, line = sys.exc_info()
-    msg = "{}: {}; Line: {}".format(ex, msg.message, line.tb_lineno)
-    print(colored(msg, "red", None, ["bold"]))
-    print("")
-    raw_input("Press <Enter> to exit.")
-    sys.exit(1)
 
 
 class StatusLine(object):
@@ -167,25 +99,11 @@ class StatusLine(object):
         if wait:
             raw_input("Press <Enter> to continue.")
 
-    def nix(self, message, status=True, color="white", attrs=None):
-        """Status messages that emulate Linux/Unix startup messages."""
-        if status is True:
-            status_msg = self._success_msg
-        elif status is False:
-            status_msg = self._fail_msg
-        else:
-            if attrs:
-                status_msg = colored(status, color, *attrs)
-            else:
-                status_msg = colored(status, color, *self.text_attrs)
-
-        print("{} {}".format(status_msg, message))
-
-    def write(self, string):
+    def write(self, message):
         """Write a processing message.
 
             Args:
-                string (str): string to be printed (e.g. "Processing...")
+                message (str): string to be printed (e.g. "Processing...")
 
             Usage:
                 >>> self.begin("Causing error..."); self.success()
@@ -193,44 +111,12 @@ class StatusLine(object):
                 Press <Enter> to exit.
         """
         # Save the process message length for use in status object
-        self._last_len = len(string)
-        # Print string; flush forces the print to occur
-        print(string, end="")
+        self._last_len = len(message)
+        # Print message; flush forces the print to occur
+        print(message, end="")
         try:
             # For consoles that do not support flush
             sys.stdout.flush()
         except:
             pass
-
         return
-
-
-# TESTS
-if __name__ == '__main__':
-    print("Testing status messages...\n")
-    # STATUS TESTS
-    # Success / fail
-    status = StatusLine()
-    status._test()
-
-    # Change default fail
-    status.bold_off()
-    status.set_fail("Unbolded Red")
-    status.write("set_fail...")
-    time.sleep(2)
-    status.failure()
-
-    # Custom
-    status.write("Custom...")
-    time.sleep(2)
-    status.custom("[COMPLETE]", 'cyan')
-
-    # Nix
-    status.nix(" [ OK ] ", "green", "*nix message printed.")
-
-    # TEST ERROR
-    print("\nIntentional Error:")
-    try:
-        raise Exception("Test Error")
-    except Exception:
-        GetError(wait=True)
