@@ -26,7 +26,7 @@ class TestNix(unittest.TestCase):
         self.nix.write("Doing important task")
         self.assertEqual(
             self.io_out.getvalue(),
-            "[\x1b[1m\x1b[37m....\x1b[0m]  Doing important task\r")
+            "[\x1b[1m\x1b[37m......\x1b[0m]  Doing important task\r")
 
     def test_ok(self):
         """nix.ok()"""
@@ -35,7 +35,7 @@ class TestNix(unittest.TestCase):
         self.nix.ok()
         self.assertEqual(
             self.io_out.getvalue(),
-            "[\x1b[1m\x1b[32m OK \x1b[0m]  Be ok\n")
+            "[\x1b[1m\x1b[32m  OK  \x1b[0m]  Be ok\n")
 
     def test_fail(self):
         """nix.fail()"""
@@ -44,18 +44,18 @@ class TestNix(unittest.TestCase):
         self.nix.fail()
         self.assertEqual(
             self.io_out.getvalue(),
-            "[\x1b[1m\x1b[31mFAIL\x1b[0m]  Dang it\n")
+            "[\x1b[1m\x1b[31m FAIL \x1b[0m]  Dang it\n")
 
     def test_info(self):
         """nix.info()"""
         self.nix.info("Useless information")
         self.assertEqual(
             self.io_out.getvalue(),
-            "[\x1b[1m\x1b[36mINFO\x1b[0m]  Useless information\n")
+            "[\x1b[1m\x1b[36m INFO \x1b[0m]  Useless information\n")
 
     def test_warn(self):
         """nix.warn()"""
         self.nix.warn("A hopeless warning")
         self.assertEqual(
             self.io_out.getvalue(),
-            "[\x1b[1m\x1b[33mWARN\x1b[0m]  A hopeless warning\n")
+            "[\x1b[1m\x1b[33m WARN \x1b[0m]  A hopeless warning\n")

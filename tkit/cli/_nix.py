@@ -23,11 +23,11 @@ text_attrs = (None, ["bold"])
 
 # Prefixes
 PFX = {
-    "processing": colored("....", "white", *text_attrs),
-    "done": colored(" OK ", "green", *text_attrs),
-    "fail": colored("FAIL", "red", *text_attrs),
-    "info": colored("INFO", "cyan", *text_attrs),
-    "warn": colored("WARN", "yellow", *text_attrs)
+    "processing": colored("......", "white", *text_attrs),
+    "done": colored("  OK  ", "green", *text_attrs),
+    "fail": colored(" FAIL ", "red", *text_attrs),
+    "info": colored(" INFO ", "cyan", *text_attrs),
+    "warn": colored(" WARN ", "yellow", *text_attrs)
     }
 
 

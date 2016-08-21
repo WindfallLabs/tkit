@@ -16,7 +16,12 @@ import traceback
 import colorama
 from termcolor import cprint, COLORS, colored
 
-__all__ = ["show_colors", "wait", "handle_ex", "GetError"]
+# Python 3 compatibility
+if sys.version.startswith("3"):
+    raw_input = input
+
+
+__all__ = ["show_colors", "wait", "handle_ex"]
 
 colorama.init()
 
@@ -29,48 +34,22 @@ def show_colors():
 
 def wait():
     """Python-version agnostic wait-for-input function."""
-    if sys.version.split()[0].startswith("2"):
-        input = raw_input
-    input("Press <Enter> to continue")
+    print("\nPress <Enter> to continue")
+    raw_input()
     return
 
 
-class GetError(object):
-    """Emulation of system traceback, includes line number."""
-    def __init__(self, red=True, wait=False):
-        self.err = None
-        self.msg = None
-        self.line = None
-        self.red = red
-        self.full_msg = self.get_msg()
-        print(self.full_msg)
-        if wait:
-            self._wait()
-
-    def get_msg(self):
-        exc_traceback = exc_traceback = sys.exc_info()[2]
-        if exc_traceback:
-            tb_lines = traceback.format_exc().splitlines()
-            self.err = "Uh oh" #tb_lines[-1].split()[0]
-            self.msg = " ".join(tb_lines[-1].split()[1:])
-            self.line = "Line {}".format(exc_traceback.tb_lineno)
-            return "{}: {} ({})".format(self.err, self.msg, self.line)
-        return None
-
-    def _wait(self):
-        """Python-version agnostic wait-for-input function."""
-        if sys.version.split()[0].startswith("2"):
-            input = raw_input
-        input("Press <Enter> to continue")
-        return
-
-
-def handle_ex(e):
-    print("\n")
-    ex = type(e).__name__
-    _n, msg, line = sys.exc_info()
-    msg = "{}: {}; Line: {}".format(ex, msg.message, line.tb_lineno)
-    print(colored(msg, "red", None, ["bold"]))
-    print("")
-    raw_input("Press <Enter> to exit.")
-    sys.exit(1)
+def handle_ex():
+    """Catches window from closing on exceptions.
+    Source: https://stackoverflow.com/questions/6086976"""
+    exc = sys.exc_info()[0]
+    stack = traceback.extract_stack()[:-1]
+    if not exc is None:
+        del stack[-1]
+    trc = 'Traceback (most recent call last):\n'
+    stackstr = trc + ''.join(traceback.format_list(stack))
+    if exc is not None:
+         stackstr += '   {}'.format(traceback.format_exc().lstrip(trc))
+    print(stackstr)
+    wait()
+    return

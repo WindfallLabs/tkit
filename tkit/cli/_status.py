@@ -12,6 +12,8 @@ from __future__ import print_function
 import colorama
 from termcolor import cprint, COLORS, colored
 
+from tkit.cli import wait
+
 __all__ = ["StatusLine"]
 
 colorama.init()
@@ -42,7 +44,7 @@ class StatusLine(object):
             msg = colored(success_msg, color, *self.text_attrs)
             self._success_msg = msg
         else:
-            self._success_msg = msg
+            self._success_msg = success_msg
 
     def set_fail(self, fail_msg="[FAILED]", color="red"):
         """Change the session's default fail message and color."""
@@ -50,17 +52,7 @@ class StatusLine(object):
             msg = colored(fail_msg, color, *self.text_attrs)
             self._fail_msg = msg
         else:
-            self._fail_msg = msg
-
-    def _test(self):
-        """Displays the success and fail status messages."""
-        self.write("Success")
-        time.sleep(1)
-        self.success()
-
-        self.write("Failure")
-        time.sleep(1)
-        self.failure()
+            self._fail_msg = fail_msg
 
     def _place_elipses(self):
         """Counts and prints elipses."""
@@ -89,15 +81,15 @@ class StatusLine(object):
         self._place_elipses()
         print(self._fail_msg)
 
-    def custom(self, custom_msg, color='white', wait=False):
+    def custom(self, custom_msg, color='white', wait_for_user=False):
         """Print a custom message."""
         self._place_elipses()
         if color.lower() == "white" or self._disabled_colors:
             print(custom_msg)
         else:
             cprint(custom_msg, color, *self.text_attrs)
-        if wait:
-            raw_input("Press <Enter> to continue.")
+        if wait_for_user:
+            wait()
 
     def write(self, message):
         """Write a processing message.
