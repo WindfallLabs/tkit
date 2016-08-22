@@ -9,8 +9,10 @@ script tools look better.
 
 from __future__ import print_function
 
+import sys
+
 import colorama
-from termcolor import cprint, COLORS, colored
+from termcolor import cprint, colored
 
 from tkit.cli import wait
 
@@ -64,7 +66,7 @@ class StatusLine(object):
         try:
             # For consoles that do not support flush
             sys.stdout.flush()
-        except:
+        except AttributeError:
             pass
 
         # Reset processing message length
@@ -109,6 +111,6 @@ class StatusLine(object):
         try:
             # For consoles that do not support flush
             sys.stdout.flush()
-        except:
+        except AttributeError:
             pass
         return

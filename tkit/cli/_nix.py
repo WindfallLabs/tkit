@@ -19,15 +19,15 @@ colorama.init()
 
 
 # Attributes (bold)
-text_attrs = (None, ["bold"])
+TEXT_ATTRS = (None, ["bold"])
 
 # Prefixes
 PFX = {
-    "processing": colored("......", "white", *text_attrs),
-    "done": colored("  OK  ", "green", *text_attrs),
-    "fail": colored(" FAIL ", "red", *text_attrs),
-    "info": colored(" INFO ", "cyan", *text_attrs),
-    "warn": colored(" WARN ", "yellow", *text_attrs)
+    "processing": colored("......", "white", *TEXT_ATTRS),
+    "done": colored("  OK  ", "green", *TEXT_ATTRS),
+    "fail": colored(" FAIL ", "red", *TEXT_ATTRS),
+    "info": colored(" INFO ", "cyan", *TEXT_ATTRS),
+    "warn": colored(" WARN ", "yellow", *TEXT_ATTRS)
     }
 
 
@@ -40,25 +40,31 @@ class Nix(object):
         self._disabled_colors = disable_colors
 
     def _make(self, pfx):
+        """Formats the output message."""
         pfx = "[{}]".format(PFX[pfx])
         return "{prefix}{spaces}{msg}".format(
             prefix=pfx, spaces=" "*self._spaces, msg=self.last_msg)
 
     def write(self, message):
+        """Take action message from user."""
         self.last_msg = message
 
         print(self._make("processing"), end="\r")
 
     def ok(self):
+        """Return the 'OK' message."""
         print(self._make("done"))
 
     def fail(self):
+        """Return the 'FAIL' message."""
         print(self._make("fail"))
 
     def info(self, string):
+        """Return an 'INFO' message."""
         self.last_msg = string
         print(self._make("info"))
 
     def warn(self, string):
+        """Return a 'WARN' message."""
         self.last_msg = string
         print(self._make("warn"))
