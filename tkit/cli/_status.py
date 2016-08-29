@@ -67,7 +67,7 @@ class StatusLine(object):
         try:
             # For consoles that do not support flush
             sys.stdout.flush()
-        except:
+        except AttributeError:
             pass
 
         # Reset processing message length
@@ -112,7 +112,7 @@ class StatusLine(object):
         try:
             # For consoles that do not support flush
             sys.stdout.flush()
-        except:
+        except AttributeError:
             pass
         return
 

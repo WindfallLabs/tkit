@@ -60,4 +60,5 @@ class TestUtils(unittest.TestCase):
                              "Traceback (most recent call last):\n")
             self.assertEqual(full[-1],
                              "Press <Enter> to continue\n")
-            self.assertTrue("BaseException: Test Exception\n" in full)
+            self.assertTrue(
+                "\x1b[1m\x1b[31mBaseException: Test Exception\x1b[0m\n" in full)

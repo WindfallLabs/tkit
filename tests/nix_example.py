@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-"""display_test.py: double-click executable that displays the Nix object.
+"""nix_example.py: double-click executable that displays the Nix object.
 Author: Garin Wally; Aug 2016
 
 """
 
 from time import sleep
 
-from cli import Nix, wait
+from tkit.cli import Nix, wait
 
 
 nix = Nix()

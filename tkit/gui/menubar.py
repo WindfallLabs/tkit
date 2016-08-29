@@ -6,7 +6,7 @@ import Tkinter as tk
 import tkMessageBox
 import tkFileDialog
 
-#import apptools
+# import apptools
 
 
 class Menubar(tk.Menu):
@@ -22,14 +22,16 @@ class Menubar(tk.Menu):
         """ Tools """
         self.Help = NewMenu(self)
         self.add_cascade(label="Help", underline=0, menu=self.Help)
-        #self.HelpSub = SubMenu(self.Help, "Help Sub")
+        '''
+        self.HelpSub = SubMenu(self.Help, "Help Sub")
         # Arc Tools sub-menu
-        #tools_garc = NewMenu(self)
-        #self.Help.add_cascade(label="GArc Tools", underline=1, menu=tools_garc)
-        #tools_garc.add_command(label="Reset Arc GUI", command=None)
+        tools_garc = NewMenu(self)
+        self.Help.add_cascade(label="GArc Tools", underline=1, menu=tools_garc)
+        tools_garc.add_command(label="Reset Arc GUI", command=None)
         # Design sub-menu
-        #tools_design = NewMenu(self)
-        #self.Help.add_cascade(label="Design", underline=0, menu=tools_design)
+        tools_design = NewMenu(self)
+        self.Help.add_cascade(label="Design", underline=0, menu=tools_design)
+        '''
 
     """ Window methods """
 
@@ -44,7 +46,7 @@ class NewMenu(tk.Menu):
 
 class SubMenu(tk.Menu):
     def __init__(self, parent_menu, submenu_name):
-        #tk.Menu.__init__(self, parent_menu, tearoff=False)
+        # tk.Menu.__init__(self, parent_menu, tearoff=False)
         self.parent = parent_menu
         self.sub_menu = NewMenu(parent_menu)
         self.sub_menu.add_cascade(label=submenu_name)

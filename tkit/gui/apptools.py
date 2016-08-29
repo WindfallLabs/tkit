@@ -5,16 +5,18 @@ This module provides consolidated and reusable GUI app development code for the
 Tkinter Kit Framework (tkit).
 """
 
-__author__ = "Garin Wally"
+import threading
+import logging
 
-
-# Imports
 try:
     import tkinter as tk
 except ImportError:
     import Tkinter as tk
-import threading
-import logging
+
+
+__author__ = "Garin Wally"
+
+
 '''
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -31,10 +33,12 @@ def build_GUI(App_class):
     App_class(root).pack(fill='both', expand='yes')
     root.mainloop()
 
+
 def thread_GUI(App_class):
     GUI = ThreadedClient("GUI", lambda: build_GUI(App_class))
     GUI.start()
     GUI.join()
+
 
 class ThreadedClient(threading.Thread):
     def __init__(self, name, process):
@@ -42,7 +46,7 @@ class ThreadedClient(threading.Thread):
         threading.Thread.__init__(self)
         self.name = name
         self.process = process
-        
+
     def run(self):
         """Runs at thread start."""
         logging.debug("{0} thread started".format(self.name))

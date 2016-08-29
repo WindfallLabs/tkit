@@ -77,7 +77,7 @@ class Statusbar(tk.Frame):
                                   fill='x', padx=5, pady=2)
         elif self.cur_status == 2:
             self.reset_but.pack(side='right')
-            #self.progressbar.pack_forget() # Issue here
+            # self.progressbar.pack_forget() # Issue here
 
     def start_bar(self):
         """Controls the bar."""

@@ -8,9 +8,8 @@ script tools look better.
 """
 
 from __future__ import print_function
+
 import sys
-import re
-import time
 import traceback
 
 import colorama
@@ -44,12 +43,14 @@ def handle_ex():
     Source: https://stackoverflow.com/questions/6086976"""
     exc = sys.exc_info()[0]
     stack = traceback.extract_stack()[:-1]
-    if not exc is None:
+    if exc is not None:
         del stack[-1]
     trc = 'Traceback (most recent call last):\n'
     stackstr = trc + ''.join(traceback.format_list(stack))
     if exc is not None:
-         stackstr += '   {}'.format(traceback.format_exc().lstrip(trc))
-    print(stackstr)
+        stackstr += '   {}'.format(traceback.format_exc().lstrip())
+    the_err = "".join(stackstr.split("\n")[-2:])
+    print("\n".join(stackstr.split("\n")[:-2]))
+    cprint(the_err, "red", None, ["bold"])
     wait()
     return
