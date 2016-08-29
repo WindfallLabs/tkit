@@ -9,10 +9,14 @@ script tools look better.
 
 from __future__ import print_function
 
+import re
+
 import colorama
 from termcolor import colored
 
-__all__ = ["Nix"]
+from tkit.cli import handle_ex
+
+__all__ = ["nix", "nix_decorator"]
 
 
 colorama.init()
@@ -62,3 +66,33 @@ class Nix(object):
     def warn(self, string):
         self.last_msg = string
         print(self._make("warn"))
+
+
+# This is the stuff to be available in tkit.cli
+
+nix = Nix()
+
+
+def nix_decorator(func):
+    """Wraps a function with naked try/except and cli.StatusLine messages."""
+    nix = Nix()
+
+    def wrapper(*args, **kwargs):
+        try:
+            if func.__doc__ and re.findall("(?i)msg:", func.__doc__):
+                d = func.__doc__
+                msg = re.findall("(?i)msg:\n(.*)", d)[0].lstrip()
+            else:
+                msg = func.__name__
+            nix.write(msg)
+            # Execute wrapped function
+            out = func(*args, **kwargs)
+            nix.ok()
+        except:  # Naked exception, who knows what will come through that door
+            nix.fail()
+            handle_ex()
+        try:
+            return out
+        except UnboundLocalError:
+            pass
+    return wrapper

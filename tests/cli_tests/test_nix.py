@@ -6,7 +6,7 @@ import sys
 from time import sleep
 from StringIO import StringIO
 
-from tkit.cli import Nix
+from tkit.cli import nix, nix_decorator
 
 
 OLD_STDOUT = sys.stdout
@@ -15,7 +15,7 @@ OLD_STDOUT = sys.stdout
 
 class TestNix(unittest.TestCase):
     def setUp(self):
-        self.nix = Nix()
+        self.nix = nix
         self.io_out = StringIO()
         sys.stdout = self.io_out
     def tearDown(self):
@@ -59,3 +59,40 @@ class TestNix(unittest.TestCase):
         self.assertEqual(
             self.io_out.getvalue(),
             "[\x1b[1m\x1b[33m WARN \x1b[0m]  A hopeless warning\n")
+
+
+class TestNixDecorator(unittest.TestCase):
+    def setUp(self):
+        self.io_out = StringIO()
+        sys.stdout = self.io_out
+    def tearDown(self):
+        sys.stdout = OLD_STDOUT
+
+    @nix_decorator
+    def in_doc(self, stuff):
+        """Has message value in __doc__.
+        Args:
+            stuff (str): stuff to do
+        Returns stuff.
+        Msg:
+            Doing stuff"""
+        return stuff
+
+    def test_in_doc(self):
+        self.in_doc("Stuff to process")
+        self.assertEqual(
+            self.io_out.getvalue(),
+            ("[\x1b[1m\x1b[37m......\x1b[0m]  "
+             "Doing stuff\r[\x1b[1m\x1b[32m  OK  \x1b[0m]  Doing stuff\n"))
+
+    @nix_decorator
+    def not_in_doc(self, stuff):
+        """Does not have message value in __doc__."""
+        return stuff
+
+    def test_not_in_doc(self):
+        self.not_in_doc("Stuff to process")
+        self.assertEqual(
+            self.io_out.getvalue(),
+            ("[\x1b[1m\x1b[37m......\x1b[0m]  "
+             "not_in_doc\r[\x1b[1m\x1b[32m  OK  \x1b[0m]  not_in_doc\n"))

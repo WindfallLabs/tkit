@@ -5,11 +5,10 @@ import sys
 from time import sleep
 from StringIO import StringIO
 
-from tkit.cli import StatusLine
+from tkit.cli import StatusLine, status_decorator  # TODO: replace with status
 
 
 OLD_STDOUT = sys.stdout
-
 
 
 class TestStatus(unittest.TestCase):
@@ -187,3 +186,40 @@ class TestStatus_set_msgs(unittest.TestCase):
             self.io_out.getvalue(),
             ("Will fail..............................."
              "\x1b[1m\x1b[31m[FAILED]\x1b[0m\n"))
+
+
+class TestStatusDecorator(unittest.TestCase):
+    def setUp(self):
+        self.io_out = StringIO()
+        sys.stdout = self.io_out
+    def tearDown(self):
+        sys.stdout = OLD_STDOUT
+
+    @status_decorator
+    def in_doc(self, stuff):
+        """Has message value in __doc__.
+        Args:
+            stuff (str): stuff to do
+        Returns stuff.
+        Msg:
+            Doing stuff..."""
+        return stuff
+
+    def test_in_doc(self):
+        self.in_doc("Stuff to process")
+        self.assertEqual(
+            self.io_out.getvalue(),
+            ("Doing stuff............................."
+             "\x1b[1m\x1b[32m[DONE]\x1b[0m\n"))
+
+    @status_decorator
+    def not_in_doc(self, stuff):
+        """Does not have message value in __doc__."""
+        return stuff
+
+    def test_not_in_doc(self):
+        self.not_in_doc("Stuff to process")
+        self.assertEqual(
+            self.io_out.getvalue(),
+            ("not_in_doc.............................."
+             "\x1b[1m\x1b[32m[DONE]\x1b[0m\n"))

@@ -9,12 +9,15 @@ script tools look better.
 
 from __future__ import print_function
 
+import re
+import sys
+
 import colorama
-from termcolor import cprint, COLORS, colored
+from termcolor import cprint, colored
 
-from tkit.cli import wait
+from tkit.cli import handle_ex, wait
 
-__all__ = ["StatusLine"]
+__all__ = ["status", "StatusLine", "status_decorator"]
 
 colorama.init()
 
@@ -112,3 +115,33 @@ class StatusLine(object):
         except:
             pass
         return
+
+
+# This is the stuff to be available in tkit.cli
+
+status = StatusLine()
+
+
+def status_decorator(func):
+    """Wraps a function with naked try/except and cli.StatusLine messages."""
+    status = StatusLine()
+
+    def wrapper(*args, **kwargs):
+        try:
+            if func.__doc__ and re.findall("(?i)msg:", func.__doc__):
+                d = func.__doc__
+                msg = re.findall("(?i)msg:\n(.*)", d)[0].lstrip()
+            else:
+                msg = func.__name__
+            status.write(msg)
+            # Execute wrapped function
+            out = func(*args, **kwargs)
+            status.success()
+        except:  # Naked exception, who knows what will come through that door
+            status.failure()
+            handle_ex()
+        try:
+            return out
+        except UnboundLocalError:
+            pass
+    return wrapper
