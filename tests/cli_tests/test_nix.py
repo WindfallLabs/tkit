@@ -6,11 +6,17 @@ import sys
 from time import sleep
 from StringIO import StringIO
 
+import mock
+
 from tkit.cli import nix, nix_decorator
 
 
 OLD_STDOUT = sys.stdout
 
+if sys.version.startswith("3"):
+    builtin_str = 'builtins.input'
+else:
+    builtin_str = '__builtin__.raw_input'
 
 
 class TestNix(unittest.TestCase):
@@ -96,3 +102,19 @@ class TestNixDecorator(unittest.TestCase):
             self.io_out.getvalue(),
             ("[\x1b[1m\x1b[37m......\x1b[0m]  "
              "not_in_doc\r[\x1b[1m\x1b[32m  OK  \x1b[0m]  not_in_doc\n"))
+
+    @nix_decorator
+    def with_error(self):
+        """Doc string.
+        Msg:
+            Cause error"""
+        raise AttributeError("This function just isn't good enough")
+
+    def test_error(self):
+        with mock.patch(builtin_str, return_value='\n'):
+            self.with_error()
+        lines = self.io_out.getvalue()
+        self.assertTrue(
+            "This function just isn't good enough" in lines)
+        self.assertTrue(
+            "[\x1b[1m\x1b[31m FAIL \x1b[0m]  Cause error\n" in lines)

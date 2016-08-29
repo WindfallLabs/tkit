@@ -5,10 +5,18 @@ import sys
 from time import sleep
 from StringIO import StringIO
 
+import mock
+
 from tkit.cli import StatusLine, status_decorator  # TODO: replace with status
 
 
 OLD_STDOUT = sys.stdout
+
+if sys.version.startswith("3"):
+    builtin_str = 'builtins.input'
+else:
+    builtin_str = '__builtin__.raw_input'
+
 
 
 class TestStatus(unittest.TestCase):
@@ -223,3 +231,20 @@ class TestStatusDecorator(unittest.TestCase):
             self.io_out.getvalue(),
             ("not_in_doc.............................."
              "\x1b[1m\x1b[32m[DONE]\x1b[0m\n"))
+
+    @status_decorator
+    def with_error(self):
+        """Doc string.
+        Msg:
+            Causing error"""
+        raise AttributeError("This function just isn't good enough")
+
+    def test_error(self):
+        with mock.patch(builtin_str, return_value='\n'):
+            self.with_error()
+        lines = self.io_out.getvalue()
+        self.assertTrue(
+            "This function just isn't good enough" in lines)
+        self.assertTrue(
+            ("Causing error..........................."
+             "\x1b[1m\x1b[31m[FAILED]\x1b[0m\n") in lines)
