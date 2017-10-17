@@ -4,7 +4,7 @@
 This module provides a light, object-oriented API for rapid GUI design with
 Tkinter.
 
-Author: Garin Wally;
+Author: Garin Wally; Feb 2015
 """
 
 # Imports
