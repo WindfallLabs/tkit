@@ -4,7 +4,12 @@
 This module provides a light, object-oriented API for rapid GUI design with
 Tkinter.
 
-Author: Garin Wally; Feb 2015
+Author: Garin Wally; Feb 2015; Oct 2017
+
+Specs:
+    all widgets should have a .name attribute
+    all widgets should have a .set_parent method
+
 """
 
 # Imports
@@ -15,6 +20,7 @@ except ImportError:
 
 import os
 import re
+import time
 import ttk
 import tkMessageBox
 import tkFileDialog
@@ -22,6 +28,7 @@ import threading
 import logging
 from collections import OrderedDict
 from time import sleep
+from types import MethodType
 
 # Logging output
 logging.basicConfig(level=logging.DEBUG,
@@ -44,6 +51,7 @@ def _clean_name(name):
 
 # ==============================================================================
 # THREADING
+
 
 def build_gui(app):
     root = tk.Tk()
@@ -74,7 +82,8 @@ class ThreadedClient(threading.Thread):
 # ==============================================================================
 # APP WINDOWS
 
-class SimpleApp(tk.Tk):
+class BaseApp(tk.Tk):
+    """Basic App object."""
     def __init__(self, title="", width=400, height=200):
         tk.Tk.__init__(self)
 
@@ -87,8 +96,11 @@ class SimpleApp(tk.Tk):
         # Widgets objects are referenced in the widgets dict by name
         self.widgets = {}
         self.input_values = {}
+        # Custom closing procedure
+        self.on_close = NULL_ACTION
 
     def _startup(self):
+        """Handle window startup procedures."""
         # Force to top when opened
         self.attributes("-topmost", True)
         self.attributes("-topmost", False)
@@ -97,28 +109,37 @@ class SimpleApp(tk.Tk):
         # Set window close (X) handler
         self.protocol("WM_DELETE_WINDOW", self.close)
 
-    def add_widget(self, name, widget):
+    def add_widget(self, widget, name=""):
+        """Add a widget object to the app."""
+        if not name:
+            name = widget.name
         widget.set_parent(self)
         self.widgets[_clean_name(name)] = widget
         return
 
     def close(self):
+        """Handle the closing of the window."""
         # Close the window
         self.destroy()
         # End the process
         self.quit()
+        # Do anything else
+        self.on_close()
 
     def set_topmost(self, on_top=True):
+        """Lock window to top."""
         self.attributes("-topmost", on_top)
         return
 
 
-class App(SimpleApp):
+class App(BaseApp):
+    """App Window."""
     def __init__(self, title="", width=400, height=200):
-        SimpleApp.__init__(self)
+        BaseApp.__init__(self)
         self._startup()
 
     def add_button(self, label, action, **kwargs):
+        """Adds a button."""
         button = ttk.Button(self, text=label, command=action)
         button.pack(kwargs)
         name = _clean_name(label)
@@ -126,6 +147,7 @@ class App(SimpleApp):
         return
 
     def add_text_input(self, label, length=20):
+        """Adds a text box and label."""
         ttk.Label(text="{} ".format(label)).pack(padx=10, pady=0)
         text_box = ttk.Entry(self, width=length)
         text_box.pack(padx=10, pady=10)
@@ -134,6 +156,7 @@ class App(SimpleApp):
         return
 
     def cmd_collect_values(self):
+        """Executes all widgets' .get() method to collect user input values."""
         for name, widget in self.widgets.items():
             try:
                 input_val = widget.get()
@@ -143,25 +166,65 @@ class App(SimpleApp):
                 pass
 
     def cmd_collect_quit(self):
+        """Combines the collect values and close command."""
         self.cmd_collect_values()
         self.close()
         return
 
+    def add_command(self, name, func):
+        """Add a function as a window method; can be called by widgets."""
+        setattr(self, name, MethodType(func, self))
+        return
+
 
 # TODO:
-'''
-@threaded_gui
-class ThreadedApp(App):
-    def __init__(self):
-        App.__init__(self, "Name")
-'''
+class ThreadedApp(threading.Thread, App):
+    """Threaded App."""
+    def __init__(self, title="", width=400, height=200):
+        threading.Thread.__init__(self)
+        App.__init__(self, title, width, height)
+
+        # Parent window properties
+        #self.geometry("{width}x{height}".format(
+        #    width=width, height=height))
+        self.title(title)
+        self.name = title
+        self._startup()
+
+    def close(self):
+        """Handle the closing of the window."""
+        self.destroy()
+        self.quit()
+        #self.on_close()
+        try:
+            self.join()
+            logging.debug("{} thread terminated".format(self.name))
+        except RuntimeError:
+            pass
+
+    def run(self):
+        """Threaded process called by .start() via mainloop()."""
+        self.protocol("WM_DELETE_WINDOW", self.close)
+        logging.debug("{} thread started".format(self.name))
+        self.main()
+        logging.debug("{} thread complete".format(self.name))
+
+    def show(self):
+        """Starts the threaded process and displays the GUI."""
+        self.start()
+        self.mainloop()
+
+    def set_main(self, func):
+        """Sets the main thread process."""
+        self.main = MethodType(func, self)
+        return
 
 
-class Popup(SimpleApp):
+class Popup(BaseApp):
     """Wrapper object for tkMessageBox."""
     def __init__(self, title="", message=""):
         """A popup window that is displayed using .show_ methods."""
-        SimpleApp.__init__(self, title)
+        BaseApp.__init__(self, title)
         # Hide the root window
         self.withdraw()
         self.name = title
@@ -207,24 +270,26 @@ class FileDialog(App):
 # MENUBAR
 
 class Menubar(tk.Menu):
-    def __init__(self, root):
-        tk.Menu.__init__(self, root=None)
-        self.root = root
+    """A menubar of menus for the top of app windows (e.g. File, Help, etc)."""
+    def __init__(self, parent=None):
+        tk.Menu.__init__(self)
+        self.parent = parent
         self.name = "menubar"
         # Set the underlying app's menu to self (this Menubar object)
         try:
-            self.root.config(menu=self)
+            self.parent.config(menu=self)
         except:
             pass
         self.menus = OrderedDict()
 
     def set_parent(self, parent):
-        self.root = parent
-        self.root.config(menu=self)
+        self.parent = parent
+        self.parent.config(menu=self)
         return
 
     def quit(self):
-        self.root.destroy()
+        """Alias for the parent's close() method."""
+        self.parent.close()
 
     def add_menu(self, name, underline=0):
         menu = Menu(self)
@@ -232,12 +297,10 @@ class Menubar(tk.Menu):
         self.menus[name] = menu
         return
 
-    '''
     def add_action(self, menu, name, action):
         """Adds an action to a specified menu."""
         self.menus[menu].add_action(name, action)
         return
-    '''
 
     def add_submenu(self, menu, name):
         """Adds an action to a specified menu."""
@@ -246,15 +309,18 @@ class Menubar(tk.Menu):
 
 
 class Menu(tk.Menu):
-    def __init__(self, root):
-        tk.Menu.__init__(self, root, tearoff=False)
-        self.root = root
+    """A menu object to place in the menubar."""
+    def __init__(self, parent):
+        tk.Menu.__init__(self, parent, tearoff=False)
         self.items = OrderedDict()
 
     def add_action(self, name, action):
         """Adds an action to the current menu."""
         if not action:
             action = NULL_ACTION
+        # Handle new apps as actions
+        if hasattr(action, "mainloop"):
+            action = action.mainloop
         self.items.update({name: action})
         self.add_command(label=name, command=action)
         return
@@ -265,47 +331,6 @@ class Menu(tk.Menu):
         self.add_cascade(label=name, underline=underline, menu=menu)
         self.items[name] = menu
         return
-
-
-'''
-class App(tk.Tk):
-    def __init__(self, title="", length=400):
-        tk.Tk.__init__(self)
-        self.title(title)
-
-        menubar = Menubar(self)
-        menubar.add_menu("File")
-        menubar.add_action("File", "Close", menubar.quit)
-
-        menubar.add_menu("Edit")
-        menubar.add_action("Edit", "None", None)
-
-        menubar.add_menu("Data")
-
-        menubar.add_menu("Tools")
-        menubar.add_action("Tools", "Import", None)
-        menubar.add_action("Tools", "Export", None)
-        menubar.add_submenu("Tools", "Models")
-        menubar.menus["Tools"].items["Models"].add_action(
-            "Building Permits", None)
-
-        menubar.add_menu("View")
-        menubar.add_action("View", "Console", None)
-
-        menubar.add_menu("Help")
-        menubar.add_action("Help", "About", None)
-
-        # Widgets can't be called with self, so reference them here
-        self.widgets = {
-            "menu": menubar}
-
-        self.geometry("{}x0".format(length))
-'''
-'''
-if __name__ == "__main__":
-    app = App("Garin")
-    app.mainloop()
-'''
 
 
 # =============================================================================
@@ -616,6 +641,7 @@ class BrowseFile(ttk.LabelFrame):
     """Select a file(s) and add it to an entrybox"""
     def __init__(self, root=None):
         self.root = root
+        self.name = "browsefile"
         # Input Frame
         self.Container = ttk.LabelFrame(root, text=" Select File ")
         self.Container.pack(side='top', anchor='n', fill='x',
@@ -733,124 +759,6 @@ if __name__ == '__main__':
 # =============================================================================
 # TESTS
 
-def test():
-    # Create app
-    global app
-    app = App("Test App")
-    # Create and customize menubar
-    menubar = Menubar(None)
-    menubar.add_menu("File")
-    menubar.menus["File"].add_action("Close", app.close)
-    menubar.add_menu("Help")
-    menubar.menus["Help"].add_action(
-        "About", Popup("About", "This program ...").show_info)
-    # Add menubar to app
-    app.add_widget(menubar.name, menubar)
-
-    app.add_widget("browser1", BrowseFile(app))
-    # Run it
-    app.add_button("OK", app.cmd_collect_values)
-    app.mainloop()
-
-
-def thread_test():
-    # TODO: tk windows cannot be created after this runs...
-    @threaded_gui
-    class _TestApp(tk.Frame):
-        """ Testing GUI """
-        def __init__(self, root):
-            """ Parent window properties """
-            tk.Frame.__init__(self, root)
-            self.root = root
-            self.root.protocol("WM_DELETE_WINDOW", self.close)
-            self.root.title('Tkit Import Test App')
-            resize = True
-            if resize is False:
-                self.root.resizable(0, 0)
-            self.root.lift()
-            self.root.focus_force()
-            self.root.deiconify()
-
-            """ Widgets """
-
-            # Menubar
-            self.menubar = Menubar(self)
-            self.menubar.add_menu("File")
-            self.menubar.menus["File"].add_action("Close", self.quit)
-            self.menubar.add_menu("Edit")
-            self.menubar.menus["Edit"].add_action("None", None)
-            self.menubar.add_menu("Data")
-            self.menubar.add_menu("Tools")
-            self.menubar.menus["Tools"].add_action("Import", None)
-            self.menubar.menus["Tools"].add_action("Export", None)
-            self.menubar.add_submenu("Tools", "Models")
-            self.menubar.menus["Tools"].items["Models"].add_action(
-                "Building Permits", None)
-            self.menubar.add_menu("View")
-            self.menubar.menus["View"].add_action("Console", None)
-            self.menubar.add_menu("Help")
-            self.menubar.menus["Help"].add_action(
-                "About", Popup("About", "Stuff").show_info)
-            self.menubar.set_parent(self.root)
-
-            # Browse Field
-            self.browse_ent = BrowseFile(self)
-
-            self.browse_dir = BrowseDir(self)
-
-            # Print selected browse fields
-            self.print_but = ttk.Button(self, text=' Test print ',
-                                        command=self.print_dir)
-            self.print_but.pack()
-
-            # Status Bar
-            self.Ok_but = ttk.Button(self, text=' Test Status ',
-                                     command=self.call_main)
-
-            self.statusbar = Statusbar(self, self.Ok_but)
-
-            # Ok button
-            self.Ok_but.pack(side='right', anchor='se', padx=5, pady=5)
-
-            # Radiobox
-            self.radiobox = Radiobox(self, 'int', ' Wait Time ',
-                                     'right', 'nw', 'both', 1)
-            self.radiobox.add_button('Five', 5)
-            self.radiobox.add_button('Ten', 10)
-            self.radiobox.add_button('Fifteen', 15)
-
-            # FileTree
-            self.filetree = FileTree(self)
-
-            """ Bindings """
-
-            self.root.bind('<Return>', self.call_main)
-            self.root.bind('<Escape>', self.close)
-
-        """ Window Methods """
-
-        def close(self, event=None):
-            self.root.destroy()
-            self.master.quit()
-            return
-
-        """ Main Method(s) """
-
-        def print_dir(self):
-            print self.browse_dir.get()
-            print self.browse_ent.get()
-
-        def call_main(self, event=None):
-            """Threadifies Main() and passes parameters to it."""
-            self.main_thread = ThreadedClient(
-                "Main", lambda: self.Main(self.radiobox.get()))
-            self.main_thread.start()
-
-        def Main(self, t):
-            """Emulates process."""
-            self.statusbar.start()
-            sleep(t)
-            self.statusbar.stop()
 
 
 # Sources:
