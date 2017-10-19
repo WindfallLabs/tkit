@@ -135,7 +135,7 @@ class BaseApp(tk.Tk):
 class App(BaseApp):
     """App Window."""
     def __init__(self, title="", width=400, height=200):
-        BaseApp.__init__(self)
+        BaseApp.__init__(self, title, width, height)
         self._startup()
 
     def add_button(self, label, action, **kwargs):

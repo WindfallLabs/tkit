@@ -12,7 +12,7 @@ import tkit
 
 if __name__ == "__main__":
     # Create app
-    test_app = tkit.App("Test App")
+    test_app = tkit.App("Test App", 250, 100)
     # Create and customize menubar
     menubar = tkit.Menubar()
     menubar.add_menu("File")
