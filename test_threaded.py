@@ -8,48 +8,69 @@ License: MIT
 """
 
 import time
+import itertools
+import threading
 import Tkinter as tk
+
 import tkit
 
 
-def main_func(self):
-    label = tk.Label(self, text="Thread test")
+STOP = threading.Event()
+
+
+def sleep():
+    """A worker simulating a long process."""
+    print("Sleeping...")
+    time.sleep(8)
+    print("Done sleeping")
+    STOP.set()
+    spinner.stop()
+    return
+
+
+def do_stuff():
+    """A worker simulating a short process."""
+    print("Stuff done.")
+    
+
+def w_loop():
+    """A worker simulating a looping process."""
+    while not STOP.is_set():
+        print("Still looping...")
+        time.sleep(.75)
+
+
+def some_process(self):
+    """This method-like function will become a method of the app class."""
+    # Set the label
+    label = tk.Label(self, text="Testing...")
     label.pack()
     self.update()
-    time.sleep(2)
 
-    for i in range(11):
-        time.sleep(0.5)
-        if i == 0:
-            label.config(text="Starting...")
-            self.update()
-            time.sleep(1.5)
-        if i == 10:
-            label.config(text="Complete!")
-        else:
-            label.config(text=i)
-        self.update()
+    # Starts these functions and moves on
+    tkit.thread_tasks([w_loop, sleep, do_stuff])
+
+    self.start_spinner() # Hangs here until sleep sets the STOP event
+    label.config(text="Done.")
+    self.update()
     return
 
 
 if __name__ == "__main__":
-    app = tkit.ThreadedApp("A Threaded App")
+    app = tkit.App("A Threaded Example")
+    
     menubar = tkit.Menubar(app)
     menubar.add_menu("File")
     menubar.add_action("File", "Close", menubar.quit)
-    menubar.add_menu("Tools")
-    menubar.add_action("Tools", "Import", None)
-    menubar.add_action("Tools", "Export", None)
-    menubar.add_submenu("Tools", "Models")
-    menubar.menus["Tools"].items["Models"].add_action("Population Model", None)
     menubar.add_menu("Help")
     menubar.add_action(
         "Help", "About", tkit.Popup("About", __doc__).show_info)
 
-    app.add_widget(menubar)
-    app.add_button("Start", app.run)
-    app.add_button("Close", app.close)
+    spinner = tkit.Elipse(app, word="")
 
-    app.set_main(main_func)
+    app.add_command("some_process", some_process)
+
+    app.add_button("Start", app.some_process)
+    app.add_button("Close", app.close)
     
     app.mainloop()

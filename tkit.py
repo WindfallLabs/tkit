@@ -65,6 +65,15 @@ def threaded_gui(app):  # TODO: not start immediately...
     gui.join()
 
 
+def thread_tasks(tasks):
+    """Starts all functions in a list as threads."""
+    for task in tasks:
+        t = threading.Thread(target=task)
+        t.daemon = True
+        t.start()
+    return
+
+
 class ThreadedClient(threading.Thread):
     def __init__(self, name, process):
         """Subclass of thread allows for easier thread creation."""
@@ -209,15 +218,10 @@ class ThreadedApp(threading.Thread, App):
         self.main()
         logging.debug("{} thread complete".format(self.name))
 
-    def show(self):
+    def mainloop_and_run(self):
         """Starts the threaded process and displays the GUI."""
         self.start()
         self.mainloop()
-
-    def set_main(self, func):
-        """Sets the main thread process."""
-        self.main = MethodType(func, self)
-        return
 
 
 class Popup(BaseApp):
@@ -757,8 +761,85 @@ if __name__ == '__main__':
 
 
 # =============================================================================
-# TESTS
+# PROGRESSES
+# TODO: move to own package with statusbar -- renamed to progressbar
+# TODO: create new status bar object from frame
 
+import itertools
+
+
+#class _Progress(threading.Thread, tk.Label):
+class _Progress(tk.Label):
+    def __init__(self, root, speed=.25, side="right",
+                 anchor="se", padx=2, pady=2):
+        #threading.Thread.__init__(self)
+        tk.Label.__init__(self, root, text="")
+        self.speed = speed
+        self.side = side
+        self.anchor = anchor
+        self.padx = padx
+        self.pady = pady
+        self.cycle = []
+        self._stop = threading.Event()
+        root.add_command("start_spinner", self.run)
+        root.add_command("stop_spinner", self.run)
+
+    def run(self, event=None):
+        """Executes the progress bar as a thread."""
+        self._stop.clear()
+        self.pack()
+        self.pack(side=self.side, anchor=self.anchor,
+                  padx=self.padx, pady=self.pady)
+        while not self._stop.is_set():
+            self.config(text=self.cycle.next())
+            self.update()
+            time.sleep(self.speed)
+        self.pack_forget()
+
+    def stop(self, event=None):
+        """Stops the progress bar."""
+        self._stop.set()
+        return
+
+
+class Spinner(_Progress):
+    def __init__(self, root, side="right", anchor="se", padx=2, pady=2):
+        _Progress.__init__(self, root)
+        #self.pack(side=side, anchor=anchor, padx=padx, pady=pady)
+        self.cycle = itertools.cycle(["|", "/", "--", "\\"])
+
+
+class Bouncer(_Progress):
+    def __init__(self, root, side="right", anchor="se", padx=2, pady=2):
+        _Progress.__init__(self, root)
+        #self.pack(side=side, anchor=anchor, padx=padx, pady=pady)
+        self.cycle = itertools.cycle(
+            ["[*    ]", "[ *   ]", "[  *  ]", "[   * ]",
+             "[    *]", "[   * ]", "[  *  ]", "[ *   ]"])
+
+
+class Elipse(_Progress):
+    def __init__(self, root, word="", side="right",
+                 anchor="se", padx=2, pady=2):
+        _Progress.__init__(self, root)
+        #self.pack(side=side, anchor=anchor, padx=padx, pady=pady)
+        elipses = ["   ", ".  ", ".. ", "..."]
+        self.cycle = itertools.cycle(
+            ["[{}{}]".format(word, e) for e in elipses])
+
+'''
+app = ThreadedApp("Spinner")
+#spinner = Spinner(app)
+#spinner = Bouncer(app)
+#spinner = Elipse(app, word="")
+
+app.add_command("stop_spinner", spinner.stop)
+app.add_command("start_spinner", spinner.run)
+app.add_button("Start", app.start_spinner)
+app.add_button("Stop", app.stop_spinner)
+
+app.mainloop()
+'''
 
 
 # Sources:
