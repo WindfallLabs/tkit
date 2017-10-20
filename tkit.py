@@ -65,12 +65,30 @@ def threaded_gui(app):  # TODO: not start immediately...
     gui.join()
 
 
-def thread_tasks(tasks):
-    """Starts all functions in a list as threads."""
+def thread_tasks(tasks, target=None):
+    """Starts all functions in a list as threads.
+    Args:
+        tasks (list): list of functions to start as threads
+        target: a progress widget
+    """
+    def delay_end(target, threads):
+        if target is None:
+            return
+        while any([t.is_alive() for t in threads]):
+            time.sleep(.2)
+        target.stop()
+        return
+        
     for task in tasks:
+        threads = []
         t = threading.Thread(target=task)
         t.daemon = True
+        threads.append(t)
         t.start()
+    end = threading.Thread(target=delay_end, args=(target, threads))
+    end.start()
+    if target:
+        target.run()
     return
 
 
@@ -772,7 +790,6 @@ import itertools
 class _Progress(tk.Label):
     def __init__(self, root, speed=.25, side="right",
                  anchor="se", padx=2, pady=2):
-        #threading.Thread.__init__(self)
         tk.Label.__init__(self, root, text="")
         self.speed = speed
         self.side = side
@@ -781,13 +798,17 @@ class _Progress(tk.Label):
         self.pady = pady
         self.cycle = []
         self._stop = threading.Event()
-        root.add_command("start_spinner", self.run)
-        root.add_command("stop_spinner", self.run)
+        setattr(root, "spinner", self)
+        try:
+            root.add_command("start_spinner", self.run)
+            root.add_command("stop_spinner", self.run)
+        except AttributeError:
+            root.root.add_command("start_spinner", self.run)
+            root.root.add_command("stop_spinner", self.run)
 
-    def run(self, event=None):
+    def run(self, event=None, tasks=[]):
         """Executes the progress bar as a thread."""
-        self._stop.clear()
-        self.pack()
+        #self._stop.clear()
         self.pack(side=self.side, anchor=self.anchor,
                   padx=self.padx, pady=self.pady)
         while not self._stop.is_set():
@@ -798,6 +819,7 @@ class _Progress(tk.Label):
 
     def stop(self, event=None):
         """Stops the progress bar."""
+        time.sleep(1)
         self._stop.set()
         return
 
