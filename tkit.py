@@ -30,9 +30,6 @@ from collections import OrderedDict
 from time import sleep
 from types import MethodType
 
-# Logging output
-logging.basicConfig(level=logging.DEBUG,
-                    format='(%(threadName)-10s) %(message)s')
 
 # Location of module
 _DIR = os.path.dirname(__file__)
@@ -40,7 +37,7 @@ _DIR = os.path.dirname(__file__)
 OPENFOLDER = os.path.join(_DIR, "icons/openfolder.gif").replace("\\", "/")
 
 
-def NULL_ACTION():
+def NULL_ACTION(*args, **kwargs):
     """Function to replace calling None."""
     pass
 
@@ -78,7 +75,7 @@ def thread_tasks(tasks, target=None):
             time.sleep(.2)
         target.stop()
         return
-        
+
     for task in tasks:
         threads = []
         t = threading.Thread(target=task)
@@ -241,6 +238,14 @@ class ThreadedApp(threading.Thread, App):
         self.start()
         self.mainloop()
 
+    def process(self, func):
+        """Wrapper/decorator for app processes."""
+        def wrapper(*args, **kwargs):
+            thread_tasks([lambda: func()], self.spinner)
+            #with Spinner():
+            #    return func()
+        return wrapper
+
 
 class Popup(BaseApp):
     """Wrapper object for tkMessageBox."""
@@ -352,6 +357,107 @@ class Menu(tk.Menu):
         menu = Menu(self)
         self.add_cascade(label=name, underline=underline, menu=menu)
         self.items[name] = menu
+        return
+
+
+# =============================================================================
+# ENTRYBOX
+
+class StatusBar(ttk.Frame):
+    def __init__(self, root, left="", left_alt="",
+                 right="Ready.", right_alt="Working...",
+                 relief="sunken"):
+        """Frame at bottom of root with labels at left and right."""
+        self.root = root
+        self.left = left
+        self.left_alt = left_alt
+        self.right = right
+        self.right_alt = right_alt
+        ttk.Frame.__init__(self, root, relief=relief)
+        # Place frame into root (at bottom)
+        self.pack(side='bottom', anchor='s', fill='x',
+                  expand='yes', padx=1, pady=1)
+        # Place left label
+        self.left_label = ttk.Label(self, text=self.left)
+        self.left_label.pack(side="left", anchor="sw", padx=2, pady=2)
+        # Place right label
+        self.right_label = ttk.Label(self, text=self.right)
+        self.right_label.pack(side="right", anchor="sw", padx=2, pady=2)
+
+    def reset(self):
+        self.left_label.config(text=self.left)
+        self.right_label.config(text=self.right)
+        self.root.update()
+        return
+
+    def process(self, func):
+        def wrapper(*args, **kwargs):
+            with self:
+                return func(*args, **kwargs)
+        return wrapper
+
+    def __enter__(self):
+        self.left_label.config(text=self.left_alt)
+        self.right_label.config(text=self.right_alt)
+        self.root.update()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.reset()
+
+
+# =============================================================================
+# ENTRYBOX
+
+class EntryBox(ttk.LabelFrame):
+    def __init__(self, root, label, button_label, button_action,
+                 default_text="", clear_text=True, relief="ridge"):
+        """Entry and action button in LabelFrame.
+        Args:
+            root: parent app object
+            label (str): text to display on LabelFrame
+            button_label (str): text to display on Button
+            button_action (func): function that does something with input str
+            default_text (str): text to show in Entry
+            clear_text (bool): clear the box after button action (default True)
+            relief (str): LabelFrame's relief type
+        """
+        ttk.LabelFrame.__init__(self, root, relief=relief, text=label)
+        self.button_action = button_action
+        self.root = root
+        self.button_label = button_label
+        self.clear_text = clear_text
+
+        self.button = ttk.Button(self, text=self.button_label,
+                                 width=len(self.button_label)+1)
+        #self.set_command(self.cmd)
+        self.button.pack(side="right", anchor="sw", padx=2, pady=4)
+
+        self.entry = ttk.Entry(self)
+        self.entry.pack(side="left", anchor="s", fill="x", expand="yes",
+                        padx=2, pady=4)
+        self.entry.insert(0, default_text)
+
+        # Set action
+        self.button.config(command=self.__call__)
+
+        self.pack()
+
+    def get_value(self):
+        return self.entry.get()
+
+    # TODO: does this work well?
+    def __call__(self):
+        result = self.button_action(self.get_value())
+        self.clear()
+        return result
+
+    #def set_command(self, func):
+    #    #self.button.config(command=lambda: func(self.get_value()))
+    #    self.button.config(command=self.cmd)
+    #    return
+
+    def clear(self):
+        self.entry.delete(0, 9999999)
         return
 
 
@@ -799,12 +905,12 @@ class _Progress(tk.Label):
         self.cycle = []
         self._stop = threading.Event()
         setattr(root, "spinner", self)
-        try:
-            root.add_command("start_spinner", self.run)
-            root.add_command("stop_spinner", self.run)
-        except AttributeError:
-            root.root.add_command("start_spinner", self.run)
-            root.root.add_command("stop_spinner", self.run)
+        #try:
+        #    root.add_command("start_spinner", self.run)
+        #    root.add_command("stop_spinner", self.run)
+        #except AttributeError:
+        #    root.root.add_command("start_spinner", self.run)
+        #    root.root.add_command("stop_spinner", self.run)
 
     def run(self, event=None, tasks=[]):
         """Executes the progress bar as a thread."""
@@ -822,6 +928,15 @@ class _Progress(tk.Label):
         time.sleep(1)
         self._stop.set()
         return
+    '''
+    def __enter__(self):
+        print("Spinner Started.")
+        self.run()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.stop()
+        print("Spinner Stopped.")
+    '''
 
 
 class Spinner(_Progress):
@@ -849,10 +964,11 @@ class Elipse(_Progress):
         self.cycle = itertools.cycle(
             ["[{}{}]".format(word, e) for e in elipses])
 
+
 '''
 app = ThreadedApp("Spinner")
 #spinner = Spinner(app)
-#spinner = Bouncer(app)
+spinner = Bouncer(app)
 #spinner = Elipse(app, word="")
 
 app.add_command("stop_spinner", spinner.stop)
@@ -862,6 +978,12 @@ app.add_button("Stop", app.stop_spinner)
 
 app.mainloop()
 '''
+
+
+if __name__ == "__main__":
+    # Logging output
+    logging.basicConfig(level=logging.DEBUG,
+                        format='(%(threadName)-10s) %(message)s')
 
 
 # Sources:
