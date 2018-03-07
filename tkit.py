@@ -28,6 +28,7 @@ import threading
 import logging
 from collections import OrderedDict
 from time import sleep
+from tkSimpleDialog import askinteger, askstring, askfloat
 from types import MethodType
 
 
@@ -256,7 +257,7 @@ class Popup(BaseApp):
         self.withdraw()
         self.name = title
         self.message = message
-        self.input = None
+        self.input = ""
 
     def show_ok_cancel(self):
         """Display a popup with 'OK' and 'Cancel'. Returns True or False."""
@@ -287,10 +288,13 @@ class Popup(BaseApp):
         self.input = tkMessageBox.showerror(self.name, self.message)
         return
 
-
-class FileDialog(App):
-    """Wrapper object for tkFileDialog."""
-    pass  # TODO: wrap the file dialog stuff found in FileTree and Browse...
+    def file_dialog(self, extensions=["*.*"], filetypes=["All files"]):
+        """Opens file browser and returns selection as input."""
+        options = dict(defaultextension=extensions[0],
+                       filetypes=zip(filetypes, extensions))
+        result = tkFileDialog.askopenfilenames(parent=self, **options)
+        self.input = result
+        return result
 
 
 # =============================================================================
@@ -409,7 +413,7 @@ class StatusBar(ttk.Frame):
 # ENTRYBOX
 
 class EntryBox(ttk.LabelFrame):
-    def __init__(self, root, label, button_label, button_action,
+    def __init__(self, root, label, button_label, button_action,  # TODO: size
                  default_text="", clear_text=True, relief="ridge"):
         """Entry and action button in LabelFrame.
         Args:
@@ -463,7 +467,7 @@ class EntryBox(ttk.LabelFrame):
 
 # =============================================================================
 # STATUSBAR
-
+'''
 class Statusbar(tk.Frame):
     """Places status bar and label in frame."""
     def __init__(self, root, disable_button=None):
@@ -537,7 +541,7 @@ class Statusbar(tk.Frame):
         """Stops the bar at the event flag."""
         self.wait_event.set()
         self.update_bar()
-
+'''
 
 '''
 class _App(tk.Frame):
